@@ -40,6 +40,7 @@ const AudioEngine = (() => {
   const OLD_START = [0, 5, 10];
 
   function rebuild(members) {
+    members.sort((x, y) => x.section - y.section);   // 稳定排序：保证"下标=声部起点+序号"
     const n = members.length;
     boosts = new Array(n).fill(1);
 
@@ -62,7 +63,7 @@ const AudioEngine = (() => {
     }
     members.forEach((m, mi) => {
       if (used.has(mi)) return;
-      const slot = ((mi - SEC_START[m.section]) + m.section * 3) % 8;
+      const slot = (((mi - SEC_START[m.section]) % 8) + 8) % 8;
       FULL_PATTERN.push([(slot * 8 + 2 + m.section * 2) % 64, mi, 2, 0.38]);
     });
 
@@ -149,6 +150,7 @@ const AudioEngine = (() => {
     const m = MEMBERS[mi], tb = m.timbre, f = noteFreq(m.pitch) || 261.63;
     vel = Math.min(1, vel);
     const V = T.voice;
+    if (!['sine','triangle','sawtooth','square'].includes(tb.wave)) tb.wave = 'sine';
 
     const g = ctx.createGain(); g.gain.value = 0;
     const flt = ctx.createBiquadFilter();
@@ -268,7 +270,7 @@ const AudioEngine = (() => {
 
   function finale() {
     if (!ctx) return;
-    mode = 'finale'; step = 0;
+    mode = 'finale'; step = 1;   // 跳过调度器 s=0，避免与 rolledChord 直呼叠两次
     const now = ctx.currentTime;
     nextT = now + 0.15;
     loopBus.gain.setTargetAtTime(0, now, 0.3);
