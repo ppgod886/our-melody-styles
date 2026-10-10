@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>乐章 · 水墨卷 — GROUP 06</title>
+<meta name="description" content="水墨丹青，二十五人成一曲。点击谱线听一个声部，点音符认识一个人。">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Serif+SC:wght@600;900&family=Noto+Sans+SC:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css?v=2">
+</head>
+<body class="t-ink">
+
+<canvas id="dust"></canvas>
+
+<!-- 远山与雾（静态水墨层） -->
+<svg id="mountains" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+  <defs>
+    <linearGradient id="mtnFar" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#8f8a7c" stop-opacity=".34"/>
+      <stop offset="100%" stop-color="#8f8a7c" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="mtnNear" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#4a463d" stop-opacity=".38"/>
+      <stop offset="100%" stop-color="#4a463d" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+  <path d="M0,560 C180,470 300,500 430,420 C520,365 600,300 730,330 C860,360 900,470 1050,440 C1200,410 1290,330 1400,370 C1500,405 1560,480 1600,520 L1600,900 L0,900 Z" fill="url(#mtnFar)"/>
+  <path d="M0,680 C150,600 260,640 400,570 C520,510 640,470 780,505 C930,542 990,640 1150,610 C1300,582 1420,530 1600,600 L1600,900 L0,900 Z" fill="url(#mtnNear)"/>
+  <!-- 落款印章 -->
+  <g transform="translate(1462,700)">
+    <rect x="0" y="0" width="86" height="86" rx="6" fill="#a63f36" opacity=".88"/>
+    <text x="43" y="40" text-anchor="middle" font-size="30" fill="#f5f1e6" font-family="'Ma Shan Zheng',serif">乐</text>
+    <text x="43" y="74" text-anchor="middle" font-size="24" fill="#f5f1e6" font-family="'Ma Shan Zheng',serif">章</text>
+  </g>
+</svg>
+
+<!-- 环形五线谱 -->
+<svg id="stage" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid meet">
+  <defs>
+    <linearGradient id="gGlyphA" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#4c463c"/>
+      <stop offset="100%" stop-color="#15130f"/>
+    </linearGradient>
+    <linearGradient id="gGlyphB" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#7a4a3a"/>
+      <stop offset="100%" stop-color="#a63f36"/>
+    </linearGradient>
+    <linearGradient id="gStaff" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#6f695c" stop-opacity=".10"/>
+      <stop offset="40%" stop-color="#57503f" stop-opacity=".45"/>
+      <stop offset="65%" stop-color="#57503f" stop-opacity=".5"/>
+      <stop offset="100%" stop-color="#6f695c" stop-opacity=".10"/>
+    </linearGradient>
+    <linearGradient id="gComet" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#8a8272" stop-opacity="0"/>
+      <stop offset="100%" stop-color="#3f3a2f"/>
+    </linearGradient>
+    <radialGradient id="gHalo">
+      <stop offset="0%" stop-color="#a63f36" stop-opacity=".38"/>
+      <stop offset="45%" stop-color="#8f8a7c" stop-opacity=".22"/>
+      <stop offset="100%" stop-color="#8f8a7c" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="fShadow" x="-80%" y="-80%" width="260%" height="260%">
+      <feDropShadow dx="0" dy="5" stdDeviation="3.5" flood-color="#3a352c" flood-opacity="0.4"/>
+    </filter>
+    <filter id="fGlow" x="-80%" y="-80%" width="260%" height="260%">
+      <feGaussianBlur stdDeviation="2.2" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+  <ellipse class="ring-ghost" cx="800" cy="452" rx="624" ry="236" transform="rotate(-10 800 452)"/>
+  <ellipse class="ring-ghost" cx="800" cy="452" rx="448" ry="164" transform="rotate(-10 800 452)"/>
+
+  <g id="ringbase">
+    <ellipse class="staff" cx="800" cy="452" rx="496" ry="180" transform="rotate(-10 800 452)"/>
+    <ellipse class="staff" cx="800" cy="452" rx="518" ry="189" transform="rotate(-10 800 452)"/>
+    <ellipse class="staff" cx="800" cy="452" rx="540" ry="198" transform="rotate(-10 800 452)"/>
+    <ellipse class="staff" cx="800" cy="452" rx="562" ry="207" transform="rotate(-10 800 452)"/>
+    <ellipse class="staff" cx="800" cy="452" rx="584" ry="216" transform="rotate(-10 800 452)"/>
+  </g>
+
+  <ellipse class="comet"    cx="800" cy="452" rx="540" ry="198" transform="rotate(-10 800 452)" pathLength="100"/>
+  <ellipse class="comet c2" cx="800" cy="452" rx="562" ry="207" transform="rotate(-10 800 452)" pathLength="100"/>
+
+  <g id="arcs"></g>
+  <g id="notes"></g>
+  <g id="labels"></g>
+</svg>
+
+<div id="vignette"></div>
+
+<header>
+  <div class="brand"><b>第六组</b> ｜ 乐章 · 水墨卷</div>
+  <div class="hright">
+    <button id="rosterBtn" title="上传 / 管理小组名单">⬆ 名单</button>
+    <div class="en">INK SCROLL · 25 NOTES</div>
+  </div>
+</header>
+
+<div id="chip">
+  <div id="chipName"></div>
+  <div id="chipEn"></div>
+  <div id="chipBack">再点一次这段谱线，或点空白处，回到全曲</div>
+</div>
+
+<div id="hint"></div>
+
+<div id="progress">
+  <span id="ptext">已点亮 0 / 25</span>
+  <div id="dots"></div>
+</div>
+
+<div id="cornerBR">🎧 建议佩戴耳机</div>
+
+<!-- 个人卡片 -->
+<div id="modal">
+  <div id="card">
+    <button id="mclose" aria-label="关闭">×</button>
+    <img id="mimg" alt="" hidden>
+    <div class="ovl">人物志 · <span id="mnum"></span> / <span id="mnumTotal">25</span></div>
+    <h2 id="mname"></h2>
+    <div id="mrole"></div>
+    <div id="mtimbre"></div>
+    <div class="card-hr"></div>
+    <p id="mquote"></p>
+    <p id="mtrait"></p>
+    <div id="mfoot">此音符已点亮 · <b id="mcount"></b></div>
+  </div>
+</div>
+
+<!-- 终章 -->
+<div id="finale">
+  <div class="f-inner">
+    <div class="f-ovl" id="finaleOvl">FINALE · 二十五枚音符，齐鸣</div>
+    <h2 class="f-title">一人一墨点，<br>合笔成一卷山水。</h2>
+    <div class="f-names" id="fnames"></div>
+    <div class="f-line" id="fline">25 枚墨点 · 一卷山水 ｜ 第六组</div>
+    <div class="f-sub">墨有浓淡，曲有先后——都是这一卷的一部分。</div>
+    <br>
+    <button id="replay">再展一卷</button>
+  </div>
+</div>
+
+<!-- 名单管理 -->
+<div id="rosterModal">
+  <div class="rcard">
+    <button class="rclose" id="rosterClose" aria-label="关闭">×</button>
+    <div class="ovl">ROSTER · 名单管理</div>
+    <h2 class="rtitle">换一批成员</h2>
+    <p class="rdesc">选一份 CSV / JSON / Excel 表格，整环音符立即换成新的小组——人数可变，音高与音色自动分配。</p>
+    <div class="rstatus" id="rstatus"></div>
+    <div class="rbtns">
+      <button id="rupload">选择文件上传</button>
+      <button id="rtpl">下载 CSV 模板</button>
+      <button id="rexport">导出当前名单</button>
+      <button id="rreset">恢复默认名单</button>
+    </div>
+    <input type="file" id="rfile" accept=".csv,.json,.xlsx,.xls,.txt" hidden>
+    <div class="rhelp">
+      表格列：姓名（必填）、职责、一句话简介、个人特色、声部（1/2/3 或 低/中/高）、音高（可留空）。<br>
+      名单只保存在这台设备的浏览器里，随时可恢复默认；建议 3～40 人。
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<!-- 入场 -->
+<div id="gate">
+  <div class="g-inner">
+    <div class="g-ovl">第 六 组 · 二 十 五 人</div>
+    <h1 class="g-title">乐章 · 水墨卷</h1>
+    <div class="g-en">TOGETHER WE MAKE MUSIC</div>
+    <div class="g-script">墨分五色，人各不同。</div>
+    <p class="g-line">
+      二十五枚墨点落于纸上，围成一环。<br>
+      有的浓，有的淡，有的还未落笔——<br>
+      而浓淡相宜，方成山水。
+    </p>
+    <div class="g-hp">🎧 建议佩戴耳机 · 古筝拨弦 · D 宫调</div>
+    <div class="g-btn">展 卷</div>
+    <div class="g-tip">点击任意处，墨色开始流动</div>
+  </div>
+</div>
+
+<script src="js/members.js?v=2"></script>
+<script src="js/audio.js?v=2"></script>
+<script src="js/roster.js?v=2"></script>
+<script src="js/main.js?v=2"></script>
+<script src="js/bg.js?v=2"></script>
+</body>
+</html>

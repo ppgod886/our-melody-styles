@@ -1,0 +1,444 @@
+/* ============================================================
+   OUR MELODY 2000+ · Y2K 蒸汽波 —— 深紫夜 · 霓虹 · 透视网格
+   ============================================================ */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html, body {
+  height: 100%; overflow: hidden;
+  background: #0b0630;
+  font-family: "Rajdhani", "Noto Sans SC", sans-serif;
+  color: #dfe6ff;
+  -webkit-font-smoothing: antialiased;
+  user-select: none;
+}
+
+/* 深紫夜空 + 双色极光 */
+body::before {
+  content: ""; position: fixed; inset: 0; z-index: 0;
+  background:
+    radial-gradient(ellipse 50% 40% at 18% 12%, rgba(120, 40, 220, .35) 0%, transparent 70%),
+    radial-gradient(ellipse 50% 40% at 85% 18%, rgba(0, 190, 255, .22) 0%, transparent 70%),
+    radial-gradient(ellipse 80% 55% at 50% 46%, #191052 0%, #120a3d 55%, #0b0630 100%);
+}
+
+#gridwrap {
+  position: fixed; left: 0; right: 0; bottom: 0; height: 38vh; z-index: 0;
+  perspective: 320px; overflow: hidden; pointer-events: none;
+  mask-image: linear-gradient(180deg, transparent 0, #000 30%);
+  -webkit-mask-image: linear-gradient(180deg, transparent 0, #000 30%);
+}
+#gridwrap .grid {
+  position: absolute; left: -50%; width: 200%; height: 400%;
+  background:
+    repeating-linear-gradient(90deg, rgba(77, 216, 255, .35) 0 1.5px, transparent 1.5px 64px),
+    repeating-linear-gradient(0deg, rgba(255, 157, 242, .32) 0 1.5px, transparent 1.5px 64px);
+  transform-origin: top center;
+  transform: rotateX(72deg);
+  animation: gridflow 7s linear infinite;
+}
+@keyframes gridflow { from { background-position: 0 0, 0 0; } to { background-position: 0 0, 0 64px; } }
+
+.scanlines {
+  position: fixed; inset: 0; z-index: 4; pointer-events: none; opacity: .16;
+  background: repeating-linear-gradient(0deg, rgba(6, 4, 26, .5) 0 2px, transparent 2px 5px);
+  mix-blend-mode: multiply;
+}
+
+#dust { position: fixed; inset: 0; z-index: 1; }
+#vignette {
+  position: fixed; inset: 0; z-index: 3; pointer-events: none;
+  background: radial-gradient(ellipse at 50% 50%, transparent 55%, rgba(5, 3, 26, .6) 100%);
+}
+#stage { position: fixed; inset: 0; z-index: 2; width: 100%; height: 100%; }
+
+/* ---------- 环形五线谱 ---------- */
+.staff { fill: none; stroke: url(#gStaff); stroke-width: 1.4; }
+.ring-ghost { fill: none; stroke: #7f6bff; opacity: .16; stroke-width: 1; }
+
+.comet {
+  fill: none; stroke: url(#gComet); stroke-width: 3; stroke-linecap: round;
+  stroke-dasharray: 15 85; animation: cometRun 14s linear infinite; pointer-events: none;
+}
+.comet.c2 { animation-duration: 20s; animation-direction: reverse; opacity: .6; stroke-width: 2; }
+@keyframes cometRun { to { stroke-dashoffset: -200; } }
+
+.arc { stroke: #4dd8ff; stroke-width: 3.5; stroke-linecap: round; opacity: 0; transition: opacity .7s; pointer-events: none; filter: url(#fGlow); }
+.arc.warm { opacity: .4; }
+.arc.hot  { opacity: 1; }
+.archit { cursor: pointer; pointer-events: stroke; }
+
+/* ---------- 音符（霓虹信号） ---------- */
+.note { transition: opacity .8s; }
+.note.dim { opacity: .15; pointer-events: none; }
+
+.note .halo { fill: url(#gHalo); opacity: 0; transition: opacity 1.2s; }
+.note.lit .halo { opacity: .95; animation: haloPulse 2.6s ease-in-out infinite; }
+@keyframes haloPulse { 0%,100% { opacity: .6; } 50% { opacity: 1; } }
+
+.note .oring {
+  fill: none; stroke: #ff9df2; stroke-width: 1.4; stroke-dasharray: 6 6;
+  opacity: 0; transition: opacity .8s;
+}
+.note.lit .oring { opacity: .95; animation: ringSpin 9s linear infinite; }
+@keyframes ringSpin { to { stroke-dashoffset: -240; } }
+
+.note .tilt { transform-box: fill-box; transform-origin: center; }
+.note .bob {
+  transform-box: fill-box; transform-origin: center;
+  animation: noteFloat 3.8s ease-in-out infinite;
+  animation-delay: calc(var(--fi, 0) * -0.8s);
+}
+@keyframes noteFloat {
+  0%,100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+.note .glyph {
+  fill: url(#gGlyphA); filter: url(#fGlow); cursor: pointer;
+  transform-box: fill-box; transform-origin: center;
+  transition: transform .3s cubic-bezier(.2,.8,.3,1.3);
+  font-family: "Orbitron", sans-serif; font-weight: 900;
+}
+.note.alt .glyph { fill: url(#gGlyphB); }
+.note:hover .glyph { transform: scale(1.3); }
+.note.lit .glyph { animation: litFlicker 2.4s steps(6) infinite; }
+@keyframes litFlicker {
+  0%, 100% { opacity: 1; } 42% { opacity: .75; } 46% { opacity: 1; }
+  70% { opacity: .82; } 74% { opacity: 1; }
+}
+
+.note.flash .glyph { animation: flashBig .9s ease-out both; }
+@keyframes flashBig {
+  0% { transform: scale(1); }
+  30% { transform: scale(2.2); filter: brightness(2.6); }
+  100% { transform: scale(1); filter: brightness(1); }
+}
+.note .hit { cursor: pointer; }
+
+.note .mini {
+  fill: #7fe3ff; font-size: 12px; letter-spacing: 2px; opacity: 0;
+  transition: opacity .8s; font-family: "Rajdhani", sans-serif; font-weight: 700;
+}
+.note.lit .mini { opacity: .9; }
+#stage.solo .note .mini { opacity: 0; }
+
+/* ---------- 浮现姓名 ---------- */
+.lbl { opacity: 0; transition: opacity .9s; pointer-events: none; }
+.lbl.show { opacity: 1; }
+.lbl .nm {
+  fill: #eaf6ff; font-size: 21px; font-weight: 900; letter-spacing: 4px;
+  font-family: "Rajdhani", "Noto Sans SC", sans-serif;
+  paint-order: stroke; stroke: rgba(10, 6, 44, .85); stroke-width: 4px;
+}
+.lbl .rl {
+  fill: #7fe3ff; font-size: 11.5px; letter-spacing: 3px; font-weight: 700;
+  font-family: "Rajdhani", "Noto Sans SC", sans-serif;
+  paint-order: stroke; stroke: rgba(10, 6, 44, .85); stroke-width: 3px;
+}
+
+/* ---------- 固定信息 ---------- */
+header {
+  position: fixed; z-index: 5; top: 0; left: 0; right: 0;
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 24px 38px; font-size: 13px; letter-spacing: 3px; color: #9fb4ff;
+  pointer-events: none; font-weight: 700;
+}
+header .brand b {
+  color: #4dd8ff; font-family: "Orbitron", sans-serif; font-weight: 900; font-size: 14px;
+  text-shadow: 0 0 12px rgba(77, 216, 255, .8);
+}
+header .en { opacity: .6; font-size: 11px; font-family: "Orbitron", sans-serif; }
+.hright { display: flex; align-items: center; gap: 16px; }
+
+#cornerBR {
+  position: fixed; z-index: 5; right: 38px; bottom: 30px;
+  font-size: 11.5px; letter-spacing: 3px; color: #7c74c9; pointer-events: none;
+  font-family: "Orbitron", "Rajdhani", sans-serif;
+}
+
+#hint {
+  position: fixed; z-index: 5; left: 50%; bottom: 96px;
+  transform: translateX(-50%) translateY(10px);
+  font-size: 14px; letter-spacing: 3px; color: #b9c8ff; font-weight: 700;
+  opacity: 0; transition: opacity 1.2s, transform 1.2s; pointer-events: none;
+  white-space: nowrap; text-shadow: 0 0 14px rgba(77, 216, 255, .5);
+}
+#hint.show { opacity: .95; transform: translateX(-50%) translateY(0); }
+
+#chip {
+  position: fixed; z-index: 5; top: 20px; left: 50%;
+  transform: translateX(-50%) translateY(-14px);
+  text-align: center; opacity: 0; transition: opacity .9s, transform .9s; pointer-events: none;
+}
+#chip.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+#chipName {
+  font-family: "Orbitron", "Noto Sans SC", sans-serif; font-weight: 900;
+  font-size: 23px; letter-spacing: 7px; color: #4dd8ff;
+  text-shadow: 0 0 20px rgba(77, 216, 255, .8);
+}
+#chipEn { margin-top: 8px; font-size: 11px; letter-spacing: 3px; color: #b96bff; font-weight: 700; }
+#chipBack { margin-top: 9px; font-size: 11px; letter-spacing: 2px; color: #6d6bb8; }
+
+#progress { position: fixed; z-index: 5; left: 38px; bottom: 28px; pointer-events: none; }
+#ptext { font-size: 12px; letter-spacing: 3px; color: #9fb4ff; font-family: "Orbitron", "Rajdhani", sans-serif; }
+#dots { margin-top: 10px; display: flex; gap: 13px; }
+.dgrp { display: flex; gap: 7px; }
+#dots i {
+  width: 7px; height: 7px; transform: rotate(45deg) scale(.9);
+  background: rgba(127, 107, 214, .15); border: 1px solid rgba(127, 107, 214, .5);
+  transition: all .5s;
+}
+#dots i.on {
+  background: #4dd8ff; border-color: #7fe3ff; transform: rotate(45deg) scale(1.15);
+  box-shadow: 0 0 12px rgba(77, 216, 255, .95);
+}
+
+/* ---------- 入场 ---------- */
+#gate {
+  position: fixed; inset: 0; z-index: 50;
+  display: flex; align-items: center; justify-content: center;
+  background:
+    radial-gradient(ellipse 50% 40% at 18% 12%, rgba(120, 40, 220, .4) 0%, transparent 70%),
+    radial-gradient(ellipse 50% 40% at 85% 18%, rgba(0, 190, 255, .25) 0%, transparent 70%),
+    radial-gradient(ellipse 80% 55% at 50% 46%, #191052 0%, #0e0836 55%, #090528 100%);
+  cursor: pointer; transition: opacity 1.2s;
+}
+#gate.hide { opacity: 0; pointer-events: none; }
+.g-inner { text-align: center; animation: gateIn 1.6s ease both; }
+@keyframes gateIn { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; } }
+
+.g-ovl {
+  font-family: "Orbitron", sans-serif; font-size: 12px; letter-spacing: 9px; color: #7c74c9;
+}
+.g-title {
+  margin-top: 26px;
+  font-family: "Orbitron", sans-serif; font-weight: 900;
+  font-size: 74px; letter-spacing: 4px;
+  background: linear-gradient(180deg, #fff 8%, #7fe3ff 38%, #b96bff 62%, #ff9df2 88%);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+  filter: drop-shadow(0 0 22px rgba(77, 216, 255, .45));
+}
+.g-en { margin-top: 12px; font-family: "Orbitron", sans-serif; font-size: 15px; letter-spacing: 10px; color: #4dd8ff; }
+.g-script {
+  margin-top: 16px; font-size: 13.5px; letter-spacing: 3px; color: #8f86d9; font-weight: 700;
+}
+.g-line {
+  margin: 30px auto 0; width: 400px;
+  font-size: 13.5px; line-height: 2.2; letter-spacing: 1.5px; color: #9b93dd;
+}
+.g-hp {
+  margin-top: 26px; font-size: 12px; letter-spacing: 3px; color: #4dd8ff;
+  font-family: "Orbitron", "Rajdhani", sans-serif;
+}
+.g-btn {
+  margin: 36px auto 0; width: 200px; height: 56px; line-height: 52px;
+  background: linear-gradient(90deg, #4dd8ff, #b96bff);
+  border: none; clip-path: polygon(10px 0, 100% 0, calc(100% - 10px) 100%, 0 100%);
+  font-family: "Orbitron", "Noto Sans SC", sans-serif; font-weight: 900;
+  font-size: 16px; letter-spacing: 8px; text-indent: 8px; color: #061034;
+  animation: btnPulse 1.6s ease-in-out infinite;
+}
+@keyframes btnPulse {
+  0%,100% { filter: brightness(1); } 50% { filter: brightness(1.35); }
+}
+.g-tip { margin-top: 20px; font-size: 11px; letter-spacing: 3px; color: #6d6bb8; font-family: "Rajdhani", sans-serif; }
+
+/* ---------- 个人卡片（终端窗口） ---------- */
+#modal {
+  position: fixed; inset: 0; z-index: 40;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(6, 4, 30, .55);
+  opacity: 0; pointer-events: none; transition: opacity .4s;
+}
+#modal.show { opacity: 1; pointer-events: auto; }
+
+#card {
+  position: relative; width: 410px; max-width: 88vw;
+  padding: 42px 40px 34px;
+  background: linear-gradient(160deg, rgba(22, 14, 66, .92), rgba(12, 7, 42, .94));
+  border: 1px solid rgba(77, 216, 255, .55);
+  box-shadow: 0 0 40px rgba(77, 216, 255, .18), inset 0 0 30px rgba(185, 107, 255, .08);
+  clip-path: polygon(18px 0, 100% 0, 100% calc(100% - 18px), calc(100% - 18px) 100%, 0 100%, 0 18px);
+  transform: translateY(14px) scale(.96);
+  transition: transform .45s cubic-bezier(.2,.8,.3,1.15);
+}
+#modal.show #card { transform: translateY(0) scale(1); }
+
+#mclose {
+  position: absolute; top: 12px; right: 16px;
+  background: none; border: 1px solid rgba(77, 216, 255, .6);
+  width: 30px; height: 30px; font-size: 14px; color: #4dd8ff; cursor: pointer;
+  transition: all .3s; font-family: "Orbitron", sans-serif;
+  clip-path: polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px);
+}
+#mclose:hover { background: rgba(77, 216, 255, .18); }
+
+#mimg {
+  position: absolute; top: 32px; right: 60px;
+  width: 92px; height: 92px; border-radius: 50%;
+  object-fit: cover; border: 1.5px solid #4dd8ff;
+  box-shadow: 0 0 22px rgba(77, 216, 255, .5);
+}
+
+.ovl { font-size: 10px; letter-spacing: 4px; color: #6d6bb8; font-family: "Orbitron", sans-serif; }
+#mname {
+  margin-top: 14px;
+  font-family: "Orbitron", "Noto Sans SC", sans-serif; font-weight: 900;
+  font-size: 42px; letter-spacing: 5px;
+  background: linear-gradient(90deg, #7fe3ff, #ff9df2);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+#mrole { margin-top: 8px; font-size: 13.5px; letter-spacing: 2px; color: #4dd8ff; font-weight: 700; }
+#mtimbre { margin-top: 6px; font-size: 11px; letter-spacing: 1.5px; color: #6d6bb8; font-family: "Rajdhani", "Noto Sans SC", sans-serif; }
+
+.card-hr {
+  margin: 22px 0; height: 2px;
+  background: repeating-linear-gradient(90deg, #4dd8ff 0 20px, #b96bff 20px 40px);
+  opacity: .6;
+}
+#mquote { font-size: 17px; line-height: 1.95; letter-spacing: 1px; color: #dfe6ff; font-weight: 600; }
+#mtrait { margin-top: 15px; font-size: 12.5px; line-height: 1.85; color: #8f86d9; }
+
+#mfoot {
+  margin-top: 26px; padding-top: 16px;
+  border-top: 1px solid rgba(77, 216, 255, .3);
+  font-size: 11px; letter-spacing: 3px; color: #6d6bb8; font-family: "Orbitron", "Rajdhani", sans-serif;
+}
+#mfoot b { color: #4dd8ff; font-weight: 900; }
+
+/* ---------- 终章 ---------- */
+#finale {
+  position: fixed; inset: 0; z-index: 45;
+  display: flex; align-items: center; justify-content: center;
+  background:
+    radial-gradient(ellipse 50% 40% at 18% 12%, rgba(120, 40, 220, .35) 0%, transparent 70%),
+    radial-gradient(ellipse 50% 40% at 85% 18%, rgba(0, 190, 255, .2) 0%, transparent 70%),
+    radial-gradient(ellipse 80% 55% at 50% 46%, rgba(23, 15, 78, .97) 0%, rgba(10, 6, 44, .97) 100%);
+  opacity: 0; pointer-events: none; transition: opacity 1.6s;
+}
+#finale.show { opacity: 1; pointer-events: auto; }
+.f-inner { text-align: center; padding: 0 24px; animation: gateIn 1.5s ease both; }
+
+.f-ovl { font-size: 11px; letter-spacing: 7px; color: #6d6bb8; font-family: "Orbitron", sans-serif; }
+.f-title {
+  margin-top: 26px;
+  font-family: "Noto Sans SC", sans-serif; font-weight: 900;
+  font-size: 36px; line-height: 1.9; letter-spacing: 5px; color: #eaf6ff;
+  text-shadow: 0 0 26px rgba(77, 216, 255, .4);
+}
+.f-names { margin: 40px auto 0; display: flex; gap: 50px; justify-content: center; flex-wrap: wrap; }
+.f-col { min-width: 150px; }
+.f-col h4 {
+  font-size: 11px; font-weight: 700; letter-spacing: 3px; color: #b96bff;
+  padding-bottom: 10px; border-bottom: 1px solid rgba(77, 216, 255, .35); margin-bottom: 12px;
+  font-family: "Orbitron", "Noto Sans SC", sans-serif;
+}
+.f-col p { font-size: 14px; letter-spacing: 3px; line-height: 2.2; color: #9fb4ff; font-weight: 600; }
+
+.f-line {
+  margin-top: 42px; font-size: 13px; letter-spacing: 5px; color: #4dd8ff;
+  font-family: "Orbitron", "Noto Sans SC", sans-serif;
+}
+.f-sub {
+  margin-top: 12px; font-size: 12px; letter-spacing: 3px; color: #6d6bb8;
+  font-family: "Rajdhani", "Noto Sans SC", sans-serif;
+}
+
+#replay {
+  margin-top: 40px; padding: 15px 48px;
+  background: linear-gradient(90deg, #4dd8ff, #b96bff);
+  border: none; clip-path: polygon(12px 0, 100% 0, calc(100% - 12px) 100%, 0 100%);
+  font-family: "Orbitron", sans-serif; font-weight: 900;
+  font-size: 15px; letter-spacing: 6px; text-indent: 6px; color: #061034; cursor: pointer;
+  transition: filter .3s;
+}
+#replay:hover { filter: brightness(1.3); }
+
+/* ---------- 名单管理 ---------- */
+#rosterBtn {
+  pointer-events: auto; background: rgba(12, 7, 42, .6);
+  border: 1px solid rgba(77, 216, 255, .55);
+  padding: 7px 16px; font-size: 11px; letter-spacing: 3px; color: #4dd8ff;
+  cursor: pointer; transition: all .3s; font-family: "Orbitron", "Noto Sans SC", sans-serif; font-weight: 700;
+  clip-path: polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px);
+}
+#rosterBtn:hover { background: rgba(77, 216, 255, .15); }
+
+#rosterModal {
+  position: fixed; inset: 0; z-index: 46;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(6, 4, 30, .6);
+  opacity: 0; pointer-events: none; transition: opacity .4s;
+}
+#rosterModal.show { opacity: 1; pointer-events: auto; }
+
+.rcard {
+  position: relative; width: 460px; max-width: 90vw;
+  padding: 40px 40px 30px;
+  background: linear-gradient(160deg, rgba(22, 14, 66, .95), rgba(12, 7, 42, .96));
+  border: 1px solid rgba(185, 107, 255, .5);
+  box-shadow: 0 0 40px rgba(185, 107, 255, .15);
+  clip-path: polygon(18px 0, 100% 0, 100% calc(100% - 18px), calc(100% - 18px) 100%, 0 100%, 0 18px);
+  transform: translateY(14px) scale(.96);
+  transition: transform .45s cubic-bezier(.2,.8,.3,1.15);
+}
+#rosterModal.show .rcard { transform: translateY(0) scale(1); }
+.rclose {
+  position: absolute; top: 12px; right: 16px;
+  background: none; border: 1px solid rgba(185, 107, 255, .6);
+  width: 30px; height: 30px; font-size: 14px; color: #b96bff; cursor: pointer;
+}
+.rclose:hover { background: rgba(185, 107, 255, .18); }
+.rtitle {
+  margin-top: 12px; font-family: "Orbitron", "Noto Sans SC", sans-serif; font-weight: 900;
+  font-size: 27px; letter-spacing: 4px;
+  background: linear-gradient(90deg, #7fe3ff, #ff9df2);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+.rdesc { margin-top: 12px; font-size: 13px; line-height: 1.85; color: #9b93dd; }
+.rstatus {
+  margin-top: 16px; padding: 10px 16px; border: 1px solid rgba(77, 216, 255, .35);
+  font-size: 12px; letter-spacing: 1.5px; color: #7fe3ff; font-family: "Rajdhani", "Noto Sans SC", sans-serif;
+}
+.rbtns { margin-top: 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.rbtns button {
+  padding: 13px 10px; background: rgba(12, 7, 42, .5);
+  border: 1px solid rgba(77, 216, 255, .5);
+  font-size: 13px; letter-spacing: 1px; color: #dfe6ff; cursor: pointer;
+  transition: all .3s; font-family: inherit; font-weight: 700;
+}
+.rbtns button:hover { background: rgba(77, 216, 255, .12); }
+#rreset { border-color: rgba(255, 157, 242, .6); color: #ff9df2; }
+.rhelp {
+  margin-top: 20px; padding-top: 14px; border-top: 1px solid rgba(77, 216, 255, .25);
+  font-size: 11px; line-height: 1.9; color: #6d6bb8;
+}
+
+/* ---------- 浮消息 ---------- */
+#toast {
+  position: fixed; z-index: 60; top: 24px; left: 50%;
+  transform: translateX(-50%) translateY(-8px);
+  max-width: 82vw; padding: 12px 26px;
+  background: rgba(12, 7, 42, .95); border: 1px solid rgba(77, 216, 255, .6);
+  box-shadow: 0 0 30px rgba(77, 216, 255, .25);
+  font-size: 13px; letter-spacing: 2px; color: #dfe6ff; font-weight: 700;
+  opacity: 0; pointer-events: none; transition: opacity .4s, transform .4s;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+}
+#toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+#toast.err { border-color: #ff9df2; color: #ff9df2; }
+
+@media (max-width: 720px) {
+  header { padding: 18px 20px; }
+  header .en { display: none; }
+  #cornerBR { right: 20px; bottom: 20px; }
+  #progress { left: 20px; bottom: 20px; }
+  #hint { bottom: 120px; font-size: 12px; white-space: normal; width: 86vw; text-align: center; }
+  .g-title { font-size: 46px; }
+  .f-title { font-size: 24px; }
+  .f-names { gap: 26px; }
+  #chipName { font-size: 19px; }
+  .rcard { padding: 30px 24px 24px; }
+  .rbtns { grid-template-columns: 1fr; }
+}

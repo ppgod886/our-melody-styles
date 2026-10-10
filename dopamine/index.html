@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>我们的乐章 · 多巴胺版 — GROUP 06</title>
+<meta name="description" content="二十五颗糖果音符围成一环，点击听声部，点亮全部合成一首歌！">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=ZCOOL+KuaiLe&family=Noto+Sans+SC:wght@400;500;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css?v=2">
+</head>
+<body>
+
+<canvas id="dust"></canvas>
+
+<!-- 环形五线谱 -->
+<svg id="stage" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid meet">
+  <defs>
+    <linearGradient id="gGlyphA" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="100%" stop-color="#fff3d6"/>
+    </linearGradient>
+    <linearGradient id="gGlyphB" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="100%" stop-color="#ffe8f2"/>
+    </linearGradient>
+    <linearGradient id="gStaff" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#f0a8c4" stop-opacity=".15"/>
+      <stop offset="40%" stop-color="#a8d8c8" stop-opacity=".7"/>
+      <stop offset="65%" stop-color="#f0c987" stop-opacity=".65"/>
+      <stop offset="100%" stop-color="#c9b8f0" stop-opacity=".15"/>
+    </linearGradient>
+    <linearGradient id="gComet" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#ffd6e8" stop-opacity="0"/>
+      <stop offset="100%" stop-color="#ff9ec4"/>
+    </linearGradient>
+    <radialGradient id="gHalo">
+      <stop offset="0%" stop-color="#ffe9a8" stop-opacity=".9"/>
+      <stop offset="50%" stop-color="#ffd6e8" stop-opacity=".4"/>
+      <stop offset="100%" stop-color="#ffd6e8" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="fShadow" x="-60%" y="-60%" width="220%" height="220%">
+      <feDropShadow dx="0" dy="4" stdDeviation="0.5" flood-color="#3f3a5f" flood-opacity="0.28"/>
+    </filter>
+  </defs>
+
+  <ellipse class="ring-ghost" cx="800" cy="452" rx="624" ry="236" transform="rotate(-10 800 452)"/>
+  <ellipse class="ring-ghost" cx="800" cy="452" rx="448" ry="164" transform="rotate(-10 800 452)"/>
+
+  <g id="ringbase">
+    <ellipse class="staff" cx="800" cy="452" rx="496" ry="180" transform="rotate(-10 800 452)"/>
+    <ellipse class="staff" cx="800" cy="452" rx="518" ry="189" transform="rotate(-10 800 452)"/>
+    <ellipse class="staff" cx="800" cy="452" rx="540" ry="198" transform="rotate(-10 800 452)"/>
+    <ellipse class="staff" cx="800" cy="452" rx="562" ry="207" transform="rotate(-10 800 452)"/>
+    <ellipse class="staff" cx="800" cy="452" rx="584" ry="216" transform="rotate(-10 800 452)"/>
+  </g>
+
+  <ellipse class="comet"    cx="800" cy="452" rx="540" ry="198" transform="rotate(-10 800 452)" pathLength="100"/>
+  <ellipse class="comet c2" cx="800" cy="452" rx="562" ry="207" transform="rotate(-10 800 452)" pathLength="100"/>
+
+  <g id="arcs"></g>
+  <g id="notes"></g>
+  <g id="labels"></g>
+</svg>
+
+<div id="vignette"></div>
+
+<header>
+  <div class="brand"><b>第六组</b> ｜ 我们的乐章 · 多巴胺</div>
+  <div class="hright">
+    <button id="rosterBtn" title="上传 / 管理小组名单">⬆ 名单</button>
+    <div class="en">DOPAMINE · 25 NOTES · ONE SONG</div>
+  </div>
+</header>
+
+<div id="chip">
+  <div id="chipName"></div>
+  <div id="chipEn"></div>
+  <div id="chipBack">再点一次这段谱线，或点空白处，回到全曲</div>
+</div>
+
+<div id="hint"></div>
+
+<div id="progress">
+  <span id="ptext">已点亮 0 / 25</span>
+  <div id="dots"></div>
+</div>
+
+<div id="cornerBR">🎧 戴上耳机效果翻倍！</div>
+
+<!-- 个人卡片 -->
+<div id="modal">
+  <div id="card">
+    <button id="mclose" aria-label="关闭">×</button>
+    <img id="mimg" alt="" hidden>
+    <div class="ovl">糖果档案 · <span id="mnum"></span> / <span id="mnumTotal">25</span></div>
+    <h2 id="mname"></h2>
+    <div id="mrole"></div>
+    <div id="mtimbre"></div>
+    <div class="card-hr"></div>
+    <p id="mquote"></p>
+    <p id="mtrait"></p>
+    <div id="mfoot">糖果已点亮 · <b id="mcount"></b></div>
+  </div>
+</div>
+
+<!-- 终章 -->
+<div id="finale">
+  <div class="f-inner">
+    <div class="f-ovl" id="finaleOvl">FINALE · 25 颗糖果一起响！</div>
+    <h2 class="f-title">每个人都有自己的味道，<br>合在一起才是最甜的一负重奏。</h2>
+    <div class="f-names" id="fnames"></div>
+    <div class="f-line" id="fline">25 种味道 · 一个我们 ｜ GROUP 06</div>
+    <div class="f-sub">今天也是甜甜的一天 🍬</div>
+    <br>
+    <button id="replay">再来一遍！</button>
+  </div>
+</div>
+
+<!-- 名单管理 -->
+<div id="rosterModal">
+  <div class="rcard">
+    <button class="rclose" id="rosterClose" aria-label="关闭">×</button>
+    <div class="ovl">ROSTER · 名单管理</div>
+    <h2 class="rtitle">换一批小伙伴</h2>
+    <p class="rdesc">选一份 CSV / JSON / Excel 表格，整环糖果音符立即换成新的小组——人数可变，音高与音色自动分配。</p>
+    <div class="rstatus" id="rstatus"></div>
+    <div class="rbtns">
+      <button id="rupload">选择文件上传</button>
+      <button id="rtpl">下载 CSV 模板</button>
+      <button id="rexport">导出当前名单</button>
+      <button id="rreset">恢复默认名单</button>
+    </div>
+    <input type="file" id="rfile" accept=".csv,.json,.xlsx,.xls,.txt" hidden>
+    <div class="rhelp">
+      表格列：姓名（必填）、职责、一句话简介、个人特色、声部（1/2/3 或 低/中/高）、音高（可留空）。<br>
+      名单只保存在这台设备的浏览器里，随时可恢复默认；建议 3～40 人。
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<!-- 入场 -->
+<div id="gate">
+  <div class="g-inner">
+    <div class="g-ovl">GROUP 06 · DOPAMINE EDITION</div>
+    <h1 class="g-title">我们的乐章</h1>
+    <div class="g-en">多 巴 胺 · 甜 味 版</div>
+    <div class="g-script">🍬 二十五颗糖果音符，一颗一个性格</div>
+    <p class="g-line">
+      有的草莓味，有的抹茶味，有的还是神秘隐藏款——<br>
+      单吃一颗就很可爱，<br>
+      全部放进嘴里……啊不，放进歌里，才是最甜的和声！
+    </p>
+    <div class="g-hp">🎧 戴上耳机 · 马林巴 · C 大调 · 96 BPM</div>
+    <div class="g-btn">开 吃 ！</div>
+    <div class="g-tip">点击任意处，糖果开始跳舞</div>
+  </div>
+</div>
+
+<script src="js/members.js?v=2"></script>
+<script src="js/audio.js?v=2"></script>
+<script src="js/roster.js?v=2"></script>
+<script src="js/main.js?v=2"></script>
+<script src="js/bg.js?v=2"></script>
+</body>
+</html>

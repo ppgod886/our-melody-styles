@@ -1,0 +1,393 @@
+/* ============================================================
+   乐章 · 多巴胺奶油 —— 糖果色 · 果冻感 · 贴纸卡片
+   ============================================================ */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html, body {
+  height: 100%; overflow: hidden;
+  background: #fff6e9;
+  font-family: "Noto Sans SC", sans-serif;
+  color: #4a3f66;
+  -webkit-font-smoothing: antialiased;
+  user-select: none;
+}
+
+body::before {
+  content: ""; position: fixed; inset: 0; z-index: 0;
+  background: radial-gradient(ellipse 75% 60% at 50% 45%, #fffdf6 0%, #fff4e2 60%, #ffe9d2 100%);
+}
+
+#dust { position: fixed; inset: 0; z-index: 1; }
+
+#vignette { position: fixed; inset: 0; z-index: 3; pointer-events: none; }
+
+#stage { position: fixed; inset: 0; z-index: 2; width: 100%; height: 100%; }
+
+/* ---------- 环形五线谱 ---------- */
+.staff { fill: none; stroke: url(#gStaff); stroke-width: 2.5; }
+.ring-ghost { fill: none; stroke: #e8b8d4; opacity: .18; stroke-width: 2; }
+
+.comet {
+  fill: none; stroke: url(#gComet); stroke-width: 4; stroke-linecap: round;
+  stroke-dasharray: 14 86; animation: cometRun 16s linear infinite; pointer-events: none;
+}
+.comet.c2 { animation-duration: 22s; animation-direction: reverse; opacity: .55; stroke-width: 3; }
+@keyframes cometRun { to { stroke-dashoffset: -200; } }
+
+.arc { stroke: #ff8fb8; stroke-width: 5; stroke-linecap: round; opacity: 0; transition: opacity .7s; pointer-events: none; }
+.arc.warm { opacity: .35; }
+.arc.hot  { opacity: .95; }
+.archit { cursor: pointer; pointer-events: stroke; }
+
+/* ---------- 音符（糖果） ---------- */
+.note { transition: opacity .8s; }
+.note.dim { opacity: .18; pointer-events: none; }
+
+/* 五色糖果循环 */
+.note:nth-child(5n+1) .glyph { fill: #ff7fa5; }
+.note:nth-child(5n+2) .glyph { fill: #5ec8b7; }
+.note:nth-child(5n+3) .glyph { fill: #ffb35c; }
+.note:nth-child(5n+4) .glyph { fill: #8f9bff; }
+.note:nth-child(5n+5) .glyph { fill: #e58fd8; }
+
+.note .halo { fill: url(#gHalo); opacity: 0; transition: opacity 1.2s; }
+.note.lit .halo { opacity: .95; animation: haloPulse 2.8s ease-in-out infinite; }
+@keyframes haloPulse { 0%,100% { opacity: .6; } 50% { opacity: 1; } }
+
+.note .oring {
+  fill: none; stroke: #ffb35c; stroke-width: 2; stroke-dasharray: 4 6;
+  opacity: 0; transition: opacity .8s;
+}
+.note.lit .oring { opacity: .9; animation: ringSpin 10s linear infinite; }
+@keyframes ringSpin { to { stroke-dashoffset: -200; } }
+
+.note .tilt { transform-box: fill-box; transform-origin: center; }
+.note .bob {
+  transform-box: fill-box; transform-origin: center bottom;
+  animation: jelly 2.6s ease-in-out infinite;
+  animation-delay: calc(var(--fi, 0) * -0.5s);
+}
+@keyframes jelly {
+  0%, 100% { transform: translateY(0) scale(1, 1); }
+  40% { transform: translateY(-7px) scale(.96, 1.05); }
+  60% { transform: translateY(-5px) scale(1.04, .96); }
+}
+
+.note .glyph {
+  filter: url(#fShadow); cursor: pointer;
+  transform-box: fill-box; transform-origin: center;
+  transition: transform .3s cubic-bezier(.2,.8,.3,1.4);
+  font-weight: 900;
+}
+.note:hover .glyph { transform: scale(1.35) rotate(-6deg); }
+.note.lit .glyph { animation: litBlink 1.8s ease-in-out infinite; }
+@keyframes litBlink { 0%,100% { opacity: 1; } 50% { opacity: .7; } }
+
+.note.flash .glyph { animation: flashBig .9s cubic-bezier(.2,.8,.3,1) both; }
+@keyframes flashBig {
+  0% { transform: scale(1); }
+  30% { transform: scale(2.1) rotate(8deg); }
+  100% { transform: scale(1) rotate(0); }
+}
+.note .hit { cursor: pointer; }
+
+.note .mini {
+  fill: #8f7fb8; font-size: 12.5px; letter-spacing: 2px; opacity: 0;
+  transition: opacity .8s; font-weight: 700;
+}
+.note.lit .mini { opacity: .9; }
+#stage.solo .note .mini { opacity: 0; }
+
+/* ---------- 浮现姓名 ---------- */
+.lbl { opacity: 0; transition: opacity .9s; pointer-events: none; }
+.lbl.show { opacity: 1; }
+.lbl .nm {
+  fill: #4a3f66; font-size: 22px; font-weight: 900; letter-spacing: 4px;
+  font-family: "ZCOOL KuaiLe", "Noto Sans SC", sans-serif;
+  paint-order: stroke; stroke: rgba(255, 250, 240, .92); stroke-width: 5px;
+}
+.lbl .rl {
+  fill: #c96a9c; font-size: 12px; letter-spacing: 3px; font-weight: 700;
+  paint-order: stroke; stroke: rgba(255, 250, 240, .92); stroke-width: 4px;
+}
+
+/* ---------- 固定信息 ---------- */
+header {
+  position: fixed; z-index: 5; top: 0; left: 0; right: 0;
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 24px 38px; font-size: 13px; letter-spacing: 2px; color: #7a6f9b;
+  pointer-events: none; font-weight: 500;
+}
+header .brand b { color: #ff6f95; font-weight: 900; font-family: "ZCOOL KuaiLe", sans-serif; font-size: 15px; }
+header .en { opacity: .6; font-size: 11px; letter-spacing: 3px; }
+.hright { display: flex; align-items: center; gap: 16px; }
+
+#cornerBR {
+  position: fixed; z-index: 5; right: 38px; bottom: 30px;
+  font-size: 12px; letter-spacing: 2px; color: #b0a3cc; pointer-events: none; font-weight: 700;
+}
+
+#hint {
+  position: fixed; z-index: 5; left: 50%; bottom: 96px;
+  transform: translateX(-50%) translateY(10px);
+  font-size: 14px; letter-spacing: 3px; color: #6d5f96; font-weight: 700;
+  opacity: 0; transition: opacity 1.2s, transform 1.2s; pointer-events: none;
+  white-space: nowrap;
+}
+#hint.show { opacity: .95; transform: translateX(-50%) translateY(0); }
+
+#chip {
+  position: fixed; z-index: 5; top: 18px; left: 50%;
+  transform: translateX(-50%) translateY(-14px);
+  text-align: center; opacity: 0; transition: opacity .9s, transform .9s; pointer-events: none;
+}
+#chip.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+#chipName {
+  font-family: "ZCOOL KuaiLe", sans-serif; font-size: 26px; letter-spacing: 6px; color: #ff6f95;
+}
+#chipEn { margin-top: 7px; font-size: 11px; letter-spacing: 3px; color: #7a6f9b; font-weight: 700; }
+#chipBack { margin-top: 8px; font-size: 11px; letter-spacing: 2px; color: #b0a3cc; }
+
+#progress { position: fixed; z-index: 5; left: 38px; bottom: 28px; pointer-events: none; }
+#ptext { font-size: 12px; letter-spacing: 2px; color: #7a6f9b; font-weight: 700; }
+#dots { margin-top: 10px; display: flex; gap: 14px; }
+.dgrp { display: flex; gap: 7px; }
+#dots i {
+  width: 8px; height: 8px; border-radius: 50% 50% 50% 2px;
+  background: #efe6f7; border: 1.5px solid #d9c9ee;
+  transition: all .5s cubic-bezier(.2,.8,.3,1.4);
+}
+#dots i.on {
+  background: #ff8fb8; border-color: #ff6f95;
+  transform: scale(1.2) rotate(45deg);
+  box-shadow: 0 0 10px rgba(255, 143, 184, .7);
+}
+
+/* ---------- 入场 ---------- */
+#gate {
+  position: fixed; inset: 0; z-index: 50;
+  display: flex; align-items: center; justify-content: center;
+  background: radial-gradient(ellipse 75% 60% at 50% 45%, #fffdf6 0%, #fff4e2 60%, #ffe9d2 100%);
+  cursor: pointer; transition: opacity 1.2s;
+}
+#gate.hide { opacity: 0; pointer-events: none; }
+.g-inner { text-align: center; animation: gateIn 1.6s cubic-bezier(.2,.8,.3,1.2) both; }
+@keyframes gateIn { from { opacity: 0; transform: translateY(30px) scale(.96); } to { opacity: 1; } }
+
+.g-ovl { font-size: 11px; letter-spacing: 6px; color: #b0a3cc; font-weight: 900; }
+.g-title {
+  margin-top: 24px;
+  font-family: "ZCOOL KuaiLe", "Noto Sans SC", sans-serif;
+  font-size: 72px; letter-spacing: 10px; color: #4a3f66;
+  text-shadow: 4px 4px 0 #ffd6e8;
+}
+.g-en { margin-top: 12px; font-family: "ZCOOL KuaiLe", sans-serif; font-size: 20px; letter-spacing: 8px; color: #ff8fb8; }
+.g-script { margin-top: 12px; font-size: 15px; letter-spacing: 3px; color: #7a6f9b; font-weight: 700; }
+.g-line {
+  margin: 26px auto 0; width: 400px;
+  font-size: 13.5px; line-height: 2.1; letter-spacing: 1px; color: #7a6f9b; font-weight: 500;
+}
+.g-hp { margin-top: 26px; font-size: 13px; letter-spacing: 2px; color: #c96a9c; font-weight: 900; }
+.g-btn {
+  margin: 34px auto 0; width: 190px; height: 58px; line-height: 56px;
+  background: #ff8fb8; border: none; border-radius: 18px;
+  font-family: "ZCOOL KuaiLe", sans-serif;
+  font-size: 20px; letter-spacing: 10px; text-indent: 10px; color: #fff;
+  box-shadow: 0 6px 0 #e56a95;
+  animation: btnDance 2.2s ease-in-out infinite; transition: transform .2s;
+  cursor: pointer;
+}
+.g-btn:hover { transform: translateY(-2px); }
+@keyframes btnDance {
+  0%,100% { transform: rotate(-1.2deg); }
+  50% { transform: rotate(1.2deg) translateY(-3px); }
+}
+.g-tip { margin-top: 20px; font-size: 11px; letter-spacing: 2px; color: #b0a3cc; font-weight: 700; }
+
+/* ---------- 个人卡片（贴纸） ---------- */
+#modal {
+  position: fixed; inset: 0; z-index: 40;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(74, 63, 102, .35);
+  opacity: 0; pointer-events: none; transition: opacity .4s;
+}
+#modal.show { opacity: 1; pointer-events: auto; }
+
+#card {
+  position: relative; width: 410px; max-width: 88vw;
+  padding: 44px 42px 36px;
+  background: #fffdf8;
+  border: 3px solid #4a3f66; border-radius: 26px;
+  box-shadow: 8px 8px 0 #ffd6e8, 0 20px 50px rgba(74, 63, 102, .25);
+  transform: translateY(20px) scale(.94) rotate(-1deg);
+  transition: transform .45s cubic-bezier(.2,.8,.3,1.3);
+}
+#modal.show #card { transform: translateY(0) scale(1) rotate(0); }
+#card::before {
+  content: "☆"; position: absolute; top: -16px; left: 24px;
+  width: 40px; height: 40px; border-radius: 50%;
+  background: #ffd6e8; border: 3px solid #4a3f66;
+  font-size: 20px; line-height: 36px; text-align: center; color: #ff6f95;
+}
+
+#mclose {
+  position: absolute; top: 12px; right: 16px;
+  background: #ffd6e8; border: 2px solid #4a3f66; border-radius: 50%;
+  width: 30px; height: 30px; font-size: 15px; color: #4a3f66; cursor: pointer;
+  transition: transform .3s; font-weight: 900; line-height: 1;
+}
+#mclose:hover { transform: rotate(90deg) scale(1.1); }
+
+#mimg {
+  position: absolute; top: 30px; right: 58px;
+  width: 92px; height: 92px; border-radius: 50%;
+  object-fit: cover; border: 3px solid #5ec8b7;
+  box-shadow: 4px 4px 0 rgba(74, 63, 102, .2);
+}
+
+.ovl { font-size: 10.5px; letter-spacing: 3px; color: #b0a3cc; font-weight: 900; }
+#mname {
+  margin-top: 14px;
+  font-family: "ZCOOL KuaiLe", sans-serif;
+  font-size: 46px; letter-spacing: 6px; color: #4a3f66;
+}
+#mrole { margin-top: 8px; font-size: 13.5px; letter-spacing: 2px; color: #ff6f95; font-weight: 900; }
+#mtimbre { margin-top: 6px; font-size: 11.5px; letter-spacing: 1px; color: #b0a3cc; font-weight: 700; }
+
+.card-hr { margin: 22px 0; height: 3px; border-radius: 3px;
+  background: repeating-linear-gradient(90deg, #ffd6e8 0 14px, #d9f2e6 14px 28px, #fff1c9 28px 42px);
+}
+#mquote {
+  font-size: 17px; line-height: 1.95; letter-spacing: 1px; color: #4a3f66; font-weight: 700;
+}
+#mtrait { margin-top: 15px; font-size: 13px; line-height: 1.85; letter-spacing: .5px; color: #8f7fb8; font-weight: 500; }
+
+#mfoot {
+  margin-top: 26px; padding-top: 16px;
+  border-top: 2px dashed #e3d8f2;
+  font-size: 11.5px; letter-spacing: 2px; color: #b0a3cc; font-weight: 700;
+}
+#mfoot b { color: #ff6f95; font-weight: 900; }
+
+/* ---------- 终章 ---------- */
+#finale {
+  position: fixed; inset: 0; z-index: 45;
+  display: flex; align-items: center; justify-content: center;
+  background: radial-gradient(ellipse 75% 60% at 50% 45%, #fffdf6 0%, #fff4e2 60%, #ffe9d2 100%);
+  opacity: 0; pointer-events: none; transition: opacity 1.4s;
+}
+#finale.show { opacity: 1; pointer-events: auto; }
+.f-inner { text-align: center; padding: 0 24px; animation: gateIn 1.4s cubic-bezier(.2,.8,.3,1.2) both; }
+
+.f-ovl { font-size: 12px; letter-spacing: 5px; color: #b0a3cc; font-weight: 900; }
+.f-title {
+  margin-top: 26px;
+  font-family: "ZCOOL KuaiLe", sans-serif;
+  font-size: 38px; line-height: 1.8; letter-spacing: 4px; color: #4a3f66;
+  text-shadow: 3px 3px 0 #ffd6e8;
+}
+.f-names { margin: 40px auto 0; display: flex; gap: 50px; justify-content: center; flex-wrap: wrap; }
+.f-col { min-width: 150px; }
+.f-col h4 {
+  font-size: 12px; font-weight: 900; letter-spacing: 3px; color: #c96a9c;
+  padding-bottom: 10px; border-bottom: 3px solid #ffd6e8; margin-bottom: 12px;
+  font-family: "ZCOOL KuaiLe", sans-serif;
+}
+.f-col p { font-size: 14px; letter-spacing: 3px; line-height: 2.2; color: #6d5f96; font-weight: 700; }
+
+.f-line { margin-top: 42px; font-size: 14px; letter-spacing: 4px; color: #ff6f95; font-weight: 900; }
+.f-sub { margin-top: 12px; font-size: 13px; letter-spacing: 2px; color: #b0a3cc; font-weight: 700; }
+
+#replay {
+  margin-top: 40px; padding: 16px 48px;
+  background: #5ec8b7; border: none; border-radius: 18px;
+  box-shadow: 0 6px 0 #3da693;
+  font-size: 17px; letter-spacing: 6px; text-indent: 6px; color: #fff; cursor: pointer;
+  font-family: "ZCOOL KuaiLe", sans-serif;
+  transition: transform .2s;
+}
+#replay:hover { transform: translateY(-3px) rotate(-1deg); }
+
+/* ---------- 名单管理 ---------- */
+#rosterBtn {
+  pointer-events: auto; background: #fff;
+  border: 2.5px solid #4a3f66; border-radius: 14px;
+  padding: 7px 16px; font-size: 11.5px; letter-spacing: 2px; color: #4a3f66;
+  cursor: pointer; transition: all .3s; font-family: inherit; font-weight: 900;
+  box-shadow: 3px 3px 0 #ffd6e8;
+}
+#rosterBtn:hover { transform: translate(-1px,-1px); box-shadow: 5px 5px 0 #ffd6e8; }
+
+#rosterModal {
+  position: fixed; inset: 0; z-index: 46;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(74, 63, 102, .4);
+  opacity: 0; pointer-events: none; transition: opacity .4s;
+}
+#rosterModal.show { opacity: 1; pointer-events: auto; }
+
+.rcard {
+  position: relative; width: 460px; max-width: 90vw;
+  padding: 40px 40px 30px;
+  background: #fffdf8; border: 3px solid #4a3f66; border-radius: 26px;
+  box-shadow: 8px 8px 0 #d9c9ee, 0 20px 50px rgba(74, 63, 102, .3);
+  transform: translateY(20px) scale(.94) rotate(1deg);
+  transition: transform .45s cubic-bezier(.2,.8,.3,1.3);
+}
+#rosterModal.show .rcard { transform: translateY(0) scale(1) rotate(0); }
+.rclose {
+  position: absolute; top: 12px; right: 16px;
+  background: #e3d8f2; border: 2px solid #4a3f66; border-radius: 50%;
+  width: 30px; height: 30px; font-size: 15px; color: #4a3f66; cursor: pointer; font-weight: 900;
+}
+.rclose:hover { transform: rotate(90deg) scale(1.1); }
+.rtitle {
+  margin-top: 12px; font-family: "ZCOOL KuaiLe", sans-serif;
+  font-size: 30px; letter-spacing: 4px; color: #4a3f66;
+}
+.rdesc { margin-top: 12px; font-size: 13px; line-height: 1.85; color: #7a6f9b; font-weight: 500; }
+.rstatus {
+  margin-top: 16px; padding: 10px 16px; border: 2px dashed #d9c9ee; border-radius: 12px;
+  font-size: 12px; letter-spacing: 1px; color: #7a6f9b; font-weight: 700;
+}
+.rbtns { margin-top: 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.rbtns button {
+  padding: 13px 10px; background: #fff; border: 2.5px solid #4a3f66; border-radius: 14px;
+  font-size: 13px; letter-spacing: 1px; color: #4a3f66; cursor: pointer;
+  transition: all .3s; font-family: inherit; font-weight: 900;
+  box-shadow: 3px 3px 0 #e3d8f2;
+}
+.rbtns button:hover { transform: translate(-1px,-1px); box-shadow: 5px 5px 0 #e3d8f2; }
+#rreset { border-color: #ff6f95; color: #ff6f95; box-shadow: 3px 3px 0 #ffd6e8; }
+.rhelp {
+  margin-top: 20px; padding-top: 14px; border-top: 2px dashed #e3d8f2;
+  font-size: 11px; line-height: 1.9; color: #b0a3cc; font-weight: 500;
+}
+
+/* ---------- 浮消息 ---------- */
+#toast {
+  position: fixed; z-index: 60; top: 24px; left: 50%;
+  transform: translateX(-50%) translateY(-8px);
+  max-width: 82vw; padding: 13px 26px;
+  background: #fff; border: 2.5px solid #4a3f66; border-radius: 16px;
+  box-shadow: 5px 5px 0 #ffd6e8;
+  font-size: 13px; letter-spacing: 1px; color: #4a3f66; font-weight: 700;
+  opacity: 0; pointer-events: none; transition: opacity .4s, transform .4s;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+#toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+#toast.err { border-color: #ff6f95; color: #e56a95; }
+
+@media (max-width: 720px) {
+  header { padding: 18px 20px; }
+  header .en { display: none; }
+  #cornerBR { right: 20px; bottom: 20px; }
+  #progress { left: 20px; bottom: 20px; }
+  #hint { bottom: 120px; font-size: 12px; white-space: normal; width: 86vw; text-align: center; }
+  .g-title { font-size: 50px; letter-spacing: 6px; text-shadow: 3px 3px 0 #ffd6e8; }
+  .f-title { font-size: 26px; }
+  .f-names { gap: 26px; }
+  #chipName { font-size: 20px; }
+  .rcard { padding: 30px 24px 24px; }
+  .rbtns { grid-template-columns: 1fr; }
+}

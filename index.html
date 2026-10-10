@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>我们的乐章 · 五种风格 — GROUP 06</title>
+<meta name="description" content="同一份二十五人名单，五种完全不同的乐器。挑一个喜欢的风格进入乐章。">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Orbitron:wght@900&family=Playfair+Display:ital@1&family=ZCOOL+KuaiLe&family=Noto+Serif+SC:wght@600;900&family=Noto+Sans+SC:wght@300;500&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { min-height: 100%; background: #101017; color: #e9e6df;
+  font-family: "Noto Sans SC", sans-serif; -webkit-font-smoothing: antialiased; }
+.wrap { max-width: 1080px; margin: 0 auto; padding: 72px 32px 90px; }
+
+.ovl { font-size: 11px; letter-spacing: 8px; color: #8b8794; text-align: center; }
+h1 { margin-top: 22px; text-align: center; font-family: "Noto Serif SC", serif; font-weight: 900;
+  font-size: clamp(30px, 5vw, 52px); letter-spacing: 12px; text-indent: 12px; }
+.sub { margin-top: 16px; text-align: center; font-size: 13.5px; line-height: 2.1; letter-spacing: 1px;
+  color: #a29e93; max-width: 560px; margin-left: auto; margin-right: auto; }
+
+.grid { margin-top: 54px; display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 22px; }
+
+a.card { display: block; text-decoration: none; color: inherit; border-radius: 14px; overflow: hidden;
+  border: 1px solid rgba(255,255,255,.1); background: #17171f;
+  transition: transform .35s cubic-bezier(.2,.8,.3,1.1), box-shadow .35s, border-color .35s; }
+a.card:hover { transform: translateY(-6px); box-shadow: 0 22px 50px rgba(0,0,0,.5); border-color: rgba(255,255,255,.28); }
+
+.thumb { height: 150px; position: relative; overflow: hidden; }
+.thumb .demo { position: absolute; left: 50%; top: 50%; width: 120px; height: 44px; transform: translate(-50%,-50%);
+  border-radius: 50%; border: 1px solid rgba(255,255,255,.35); }
+.thumb .demo::before, .thumb .demo::after { content: ""; position: absolute; left: 8px; right: 8px; height: 1px;
+  background: rgba(255,255,255,.3); }
+.thumb .demo::before { top: 12px; } .thumb .demo::after { bottom: 12px; }
+.thumb .n { position: absolute; left: 50%; top: 50%; transform: translate(-50%,-50%);
+  font-size: 30px; color: #fff; text-shadow: 0 0 18px rgba(255,255,255,.4); }
+
+.t-ink    { background: radial-gradient(ellipse 70% 60% at 40% 30%, #faf7ee, #e7e1cf); }
+.t-ink .n { font-family: "Ma Shan Zheng", serif; color: #2f2c26; text-shadow: none; }
+.t-ink .demo { border-color: rgba(47,44,38,.5); } .t-ink .demo::before, .t-ink .demo::after { background: rgba(47,44,38,.4); }
+.t-ink .seal { position: absolute; right: 18px; bottom: 14px; width: 26px; height: 26px; background: #a63f36; border-radius: 3px; }
+
+.t-dop   { background: radial-gradient(ellipse 70% 60% at 30% 25%, #ffd6e8, transparent 60%),
+           radial-gradient(ellipse 70% 60% at 75% 70%, #c9f2e4, transparent 60%), #fff4e2; }
+.t-dop .n { font-family: "ZCOOL KuaiLe", sans-serif; color: #4a3f66; text-shadow: 3px 3px 0 #ffd6e8; }
+
+.t-y2k   { background: radial-gradient(ellipse 60% 50% at 20% 15%, rgba(120,40,220,.5), transparent 60%),
+           radial-gradient(ellipse 60% 50% at 80% 30%, rgba(0,190,255,.3), transparent 60%), linear-gradient(180deg,#191052,#0b0630); }
+.t-y2k .n { font-family: "Orbitron", sans-serif; font-weight: 900; font-size: 17px; letter-spacing: 2px;
+  background: linear-gradient(180deg,#fff,#7fe3ff 40%,#ff9df2); -webkit-background-clip: text; background-clip: text; color: transparent; }
+
+.t-mag   { background: #f4f2ee; }
+.t-mag .n { font-family: "Noto Serif SC", serif; font-weight: 900; color: #1c1b19; letter-spacing: 8px; text-shadow: none; }
+.t-mag .n::first-letter { color: #d43d2a; }
+.t-mag .rule { position: absolute; top: 0; left: 0; right: 0; height: 6px; background: #111; }
+
+.t-star  { background: radial-gradient(ellipse 70% 55% at 50% 40%, #14204a, #04060f); }
+.t-star .n { font-family: "Noto Serif SC", serif; color: #eef2ff; }
+
+.meta { padding: 20px 22px 24px; }
+.meta h3 { font-size: 17px; letter-spacing: 3px; font-family: "Noto Serif SC", serif; }
+.meta .tag { margin-top: 6px; font-size: 10.5px; letter-spacing: 3px; color: #8b8794; text-transform: uppercase; }
+.meta p { margin-top: 12px; font-size: 12.5px; line-height: 1.9; color: #a29e93; }
+.meta .listen { margin-top: 12px; font-size: 11px; letter-spacing: 2px; color: #6d6a75; }
+.meta .listen b { color: #d9d5cc; font-weight: 500; }
+
+.main-link { display: block; margin-top: 46px; text-align: center; font-size: 13px; letter-spacing: 2px;
+  color: #8b8794; text-decoration: none; }
+.main-link:hover { color: #e9e6df; }
+.foot { margin-top: 60px; text-align: center; font-size: 11px; letter-spacing: 3px; color: #55525c; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="ovl">GROUP 06 · SAME 25 PEOPLE · FIVE INSTRUMENTS</div>
+  <h1>我们的乐章 · 五种风格</h1>
+  <p class="sub">
+    同一份二十五人名单，同一套交互（点谱线听声部 → 点音符读一个人 → 全点亮合成终章），
+    五种完全不同的乐器：背景、动画、音阶与音色都不一样。挑一个喜欢的进入。
+  </p>
+
+  <div class="grid">
+    <a class="card" href="ink/">
+      <div class="thumb t-ink"><div class="demo"></div><div class="n">水墨卷</div><div class="seal"></div></div>
+      <div class="meta">
+        <h3>乐章 · 水墨卷</h3>
+        <div class="tag">INK SCROLL · 古筝 · D 宫调 · 58 BPM</div>
+        <p>宣纸、远山、朱砂印。音符是墨点，点亮如墨晕开，终章"一人一墨点，合笔成一卷山水"。</p>
+        <div class="listen">听感 <b>古筝拨弦 · 留白呼吸</b></div>
+      </div>
+    </a>
+
+    <a class="card" href="dopamine/">
+      <div class="thumb t-dop"><div class="demo"></div><div class="n">多巴胺</div></div>
+      <div class="meta">
+        <h3>我们的乐章 · 多巴胺</h3>
+        <div class="tag">DOPAMINE · 马林巴 · C 大调 · 96 BPM</div>
+        <p>奶油底 + 糖果色云团，音符是会果冻弹跳的彩色糖果，终章撒彩纸："合在一起才是最甜的一负重奏"。</p>
+        <div class="listen">听感 <b>马林巴清脆 · 蹦蹦跳跳</b></div>
+      </div>
+    </a>
+
+    <a class="card" href="y2k/">
+      <div class="thumb t-y2k"><div class="demo"></div><div class="n">Y2K</div></div>
+      <div class="meta">
+        <h3>OUR MELODY 2000+</h3>
+        <div class="tag">Y2K SYNTHWAVE · SYNTH · A 小调 · 102 BPM</div>
+        <p>深紫夜、透视网格、扫描线与全息光斑。音符是霓虹信号，终章"二十五道电波在同一频率汇成一首歌"。</p>
+        <div class="listen">听感 <b>复古合成器 · 带回声</b></div>
+      </div>
+    </a>
+
+    <a class="card" href="mag/">
+      <div class="thumb t-mag"><div class="rule"></div><div class="demo"></div><div class="n">樂·章</div></div>
+      <div class="meta">
+        <h3>乐章 · 刊 ISSUE 06</h3>
+        <div class="tag">EDITORIAL B&W · 爵士钢琴 · 63 BPM</div>
+        <p>黑白杂志大片：巨型衬线字、电影黑边、胶片颗粒。音符如铅字静止，卡片是每人一篇人物专稿，唯一印红是点亮。</p>
+        <div class="listen">听感 <b>爵士钢琴 · 黑胶底噪</b></div>
+      </div>
+    </a>
+
+    <a class="card" href="star/">
+      <div class="thumb t-star"><div class="demo"></div><div class="n">星軌</div></div>
+      <div class="meta">
+        <h3>星轨乐章</h3>
+        <div class="tag">CONSTELLATION · 空灵铃音 · C 利底亚 · 54 BPM</div>
+        <p>深空星野、星云与流星。音符是一颗颗星，彼此之间有星座连线缓缓呼吸，终章"我们是彼此的星座"。</p>
+        <div class="listen">听感 <b>空灵铃音 · 深空低鸣</b></div>
+      </div>
+    </a>
+  </div>
+
+  <a class="main-link" href="https://ppgod886.github.io/our-melody-g6/">← 主站（象牙白日间 / 黑金夜间双主题版）</a>
+  <div class="foot">GROUP 06 · SAME NOTES, DIFFERENT WEATHER · 2026</div>
+</div>
+</body>
+</html>

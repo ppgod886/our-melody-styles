@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>星轨乐章 — GROUP 06</title>
+<meta name="description" content="二十五颗星在夜空里连成星座，每一颗都是一个人。点亮全部，星座齐鸣。">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@1,500&family=Noto+Serif+SC:wght@600;900&family=Noto+Sans+SC:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css?v=2">
+</head>
+<body>
+
+<canvas id="dust"></canvas>
+
+<!-- 环形五线谱 -->
+<svg id="stage" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid meet">
+  <defs>
+    <linearGradient id="gGlyphA" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="100%" stop-color="#c9d8ff"/>
+    </linearGradient>
+    <linearGradient id="gGlyphB" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#fff2c9"/>
+      <stop offset="100%" stop-color="#ffd88a"/>
+    </linearGradient>
+    <linearGradient id="gStaff" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#5a74d8" stop-opacity=".1"/>
+      <stop offset="40%" stop-color="#8fa4ff" stop-opacity=".35"/>
+      <stop offset="65%" stop-color="#b8c8ff" stop-opacity=".3"/>
+      <stop offset="100%" stop-color="#5a74d8" stop-opacity=".1"/>
+    </linearGradient>
+    <linearGradient id="gComet" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#8fa4ff" stop-opacity="0"/>
+      <stop offset="100%" stop-color="#e9efff"/>
+    </linearGradient>
+    <radialGradient id="gHalo">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity=".55"/>
+      <stop offset="40%" stop-color="#a8baff" stop-opacity=".3"/>
+      <stop offset="100%" stop-color="#a8baff" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="fGlow" x="-100%" y="-100%" width="300%" height="300%">
+      <feGaussianBlur stdDeviation="2.8" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+  <ellipse class="ring-ghost" cx="800" cy="452" rx="624" ry="236" transform="rotate(-10 800 452)"/>
+  <ellipse class="ring-ghost" cx="800" cy="452" rx="448" ry="164" transform="rotate(-10 800 452)"/>
+
+  <g id="ringbase">
+    <ellipse class="staff" cx="800" cy="452" rx="496" ry="180" transform="rotate(-10 800 452)"/>
+    <ellipse class="staff" cx="800" cy="452" rx="518" ry="189" transform="rotate(-10 800 452)"/>
+    <ellipse class="staff" cx="800" cy="452" rx="540" ry="198" transform="rotate(-10 800 452)"/>
+    <ellipse class="staff" cx="800" cy="452" rx="562" ry="207" transform="rotate(-10 800 452)"/>
+    <ellipse class="staff" cx="800" cy="452" rx="584" ry="216" transform="rotate(-10 800 452)"/>
+  </g>
+
+  <ellipse class="comet" cx="800" cy="452" rx="540" ry="198" transform="rotate(-10 800 452)" pathLength="100"/>
+
+  <g id="arcs"></g>
+  <g id="notes"></g>
+  <g id="labels"></g>
+</svg>
+
+<div class="nebula"></div>
+<div id="vignette"></div>
+
+<header>
+  <div class="brand">星軌樂章 <span class="no">· GROUP 06</span></div>
+  <div class="hright">
+    <button id="rosterBtn" title="上传 / 管理小组名单">⬆ 名单</button>
+    <div class="en">CONSTELLATION · 25 STARS</div>
+  </div>
+</header>
+
+<div id="chip">
+  <div id="chipName"></div>
+  <div id="chipEn"></div>
+  <div id="chipBack">再点一次这段谱线，或点空白处，回到全曲</div>
+</div>
+
+<div id="hint"></div>
+
+<div id="progress">
+  <span id="ptext">已点亮 0 / 25</span>
+  <div id="dots"></div>
+</div>
+
+<div id="cornerBR">🎧 建议佩戴耳机 · 空灵铃音 · C 利底亚</div>
+
+<!-- 个人卡片 -->
+<div id="modal">
+  <div id="card">
+    <button id="mclose" aria-label="关闭">×</button>
+    <img id="mimg" alt="" hidden>
+    <div class="ovl">STAR FILE · <span id="mnum"></span> / <span id="mnumTotal">25</span></div>
+    <h2 id="mname"></h2>
+    <div id="mrole"></div>
+    <div id="mtimbre"></div>
+    <div class="card-hr"></div>
+    <p id="mquote"></p>
+    <p id="mtrait"></p>
+    <div id="mfoot">这颗星已点亮 · <b id="mcount"></b></div>
+  </div>
+</div>
+
+<!-- 终章 -->
+<div id="finale">
+  <div class="f-inner">
+    <div class="f-ovl" id="finaleOvl">FINALE · 二十五颗星，同时亮起</div>
+    <h2 class="f-title">我们不是二十四加一颗星，<br>我们是彼此的星座。</h2>
+    <div class="f-names" id="fnames"></div>
+    <div class="f-line" id="fline">25 颗星 · 一个星座 ｜ GROUP 06</div>
+    <div class="f-sub">今夜抬头，那片最亮的天空写着我们的名字。</div>
+    <br>
+    <button id="replay">再看一次星空</button>
+  </div>
+</div>
+
+<!-- 名单管理 -->
+<div id="rosterModal">
+  <div class="rcard">
+    <button class="rclose" id="rosterClose" aria-label="关闭">×</button>
+    <div class="ovl">ROSTER · 名单管理</div>
+    <h2 class="rtitle">换一批星星</h2>
+    <p class="rdesc">选一份 CSV / JSON / Excel 表格，整片星空立即换成新的小组——人数可变，音高与音色自动分配。</p>
+    <div class="rstatus" id="rstatus"></div>
+    <div class="rbtns">
+      <button id="rupload">选择文件上传</button>
+      <button id="rtpl">下载 CSV 模板</button>
+      <button id="rexport">导出当前名单</button>
+      <button id="rreset">恢复默认名单</button>
+    </div>
+    <input type="file" id="rfile" accept=".csv,.json,.xlsx,.xls,.txt" hidden>
+    <div class="rhelp">
+      表格列：姓名（必填）、职责、一句话简介、个人特色、声部（1/2/3 或 低/中/高）、音高（可留空）。<br>
+      名单只保存在这台设备的浏览器里，随时可恢复默认；建议 3～40 人。
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<!-- 入场 -->
+<div id="gate">
+  <div class="g-inner">
+    <div class="g-ovl">GROUP 06 · CONSTELLATION OF US</div>
+    <h1 class="g-title">星軌樂章</h1>
+    <div class="g-en">TWENTY-FIVE STARS · ONE SKY</div>
+    <div class="g-script">—— 每一颗星，都是一位还没被叫出名字的成员 ——</div>
+    <p class="g-line">
+      夜空里有二十五颗待认领的星，<br>
+      它们各自发光，彼此相隔，<br>
+      直到有人把它们一颗颗点亮，连成星座。
+    </p>
+    <div class="g-hp">🎧 建议佩戴耳机 · 空灵铃音 · 深空低鸣</div>
+    <div class="g-btn">抬 头</div>
+    <div class="g-tip">点击任意处，星空亮起</div>
+  </div>
+</div>
+
+<script src="js/members.js?v=2"></script>
+<script src="js/audio.js?v=2"></script>
+<script src="js/roster.js?v=2"></script>
+<script src="js/main.js?v=2"></script>
+<script src="js/bg.js?v=2"></script>
+</body>
+</html>

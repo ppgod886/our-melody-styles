@@ -1,0 +1,429 @@
+/* ============================================================
+   乐章 · 刊 ISSUE 06 —— 黑白编辑风 · 电影黑边 · 胶片颗粒 · 一处印红
+   ============================================================ */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html, body {
+  height: 100%; overflow: hidden;
+  background: #f4f2ee;
+  font-family: "Noto Serif SC", "Playfair Display", serif;
+  color: #1c1b19;
+  -webkit-font-smoothing: antialiased;
+  user-select: none;
+}
+
+body::before {
+  content: ""; position: fixed; inset: 0; z-index: 0;
+  background: radial-gradient(ellipse 80% 60% at 50% 45%, #faf9f6 0%, #f4f2ee 60%, #eae7e0 100%);
+}
+
+/* 电影黑边 */
+.letterbox {
+  position: fixed; left: 0; right: 0; height: 64px; z-index: 6;
+  background: #111; pointer-events: none;
+}
+.letterbox.top { top: 0; }
+.letterbox.bottom { bottom: 0; }
+
+#dust { position: fixed; inset: 0; z-index: 1; }
+
+/* 胶片颗粒 */
+.grain {
+  position: fixed; inset: 0; z-index: 4; pointer-events: none; opacity: .5;
+  mix-blend-mode: multiply;
+}
+
+#vignette {
+  position: fixed; inset: 0; z-index: 3; pointer-events: none;
+  background: radial-gradient(ellipse at 50% 50%, transparent 58%, rgba(40, 38, 34, .16) 85%, rgba(30, 28, 25, .34) 100%);
+}
+
+#stage { position: fixed; inset: 0; z-index: 2; width: 100%; height: 100%; }
+
+/* 背景排版大字 */
+.bg-word {
+  font-family: "Noto Serif SC", serif; font-weight: 900;
+  font-size: 300px; letter-spacing: 40px;
+  fill: #1c1b19; opacity: .045;
+}
+
+/* ---------- 环形五线谱 ---------- */
+.staff { fill: none; stroke: url(#gStaff); stroke-width: 1; }
+.ring-ghost { fill: none; stroke: #55524c; opacity: .1; stroke-width: 1; }
+
+.comet {
+  fill: none; stroke: url(#gComet); stroke-width: 2; stroke-linecap: round;
+  stroke-dasharray: 12 88; animation: cometRun 26s linear infinite; pointer-events: none;
+}
+@keyframes cometRun { to { stroke-dashoffset: -200; } }
+
+.arc { stroke: #d43d2a; stroke-width: 2.5; stroke-linecap: round; opacity: 0; transition: opacity .7s; pointer-events: none; }
+.arc.warm { opacity: .4; }
+.arc.hot  { opacity: .95; }
+.archit { cursor: pointer; pointer-events: stroke; }
+
+/* ---------- 音符 ---------- */
+.note { transition: opacity .8s; }
+.note.dim { opacity: .16; pointer-events: none; }
+
+.note .halo { fill: url(#gHalo); opacity: 0; transition: opacity 1.2s; }
+.note.lit .halo { opacity: 1; animation: haloPulse 4s ease-in-out infinite; }
+@keyframes haloPulse { 0%,100% { opacity: .7; } 50% { opacity: 1; } }
+
+.note .oring {
+  fill: none; stroke: #d43d2a; stroke-width: 1; stroke-dasharray: 3 5;
+  opacity: 0; transition: opacity .8s;
+}
+.note.lit .oring { opacity: .85; animation: ringSpin 18s linear infinite; }
+@keyframes ringSpin { to { stroke-dashoffset: -160; } }
+
+.note .tilt { transform-box: fill-box; transform-origin: center; }
+.note .bob {
+  transform-box: fill-box; transform-origin: center;
+  animation: none;   /* 杂志风：音符静止，如排好的铅字 */
+}
+
+.note .glyph {
+  fill: url(#gGlyphA); filter: url(#fShadow); cursor: pointer;
+  transform-box: fill-box; transform-origin: center;
+  transition: transform .4s cubic-bezier(.2,.8,.3,1);
+}
+.note.alt .glyph { fill: url(#gGlyphB); }
+.note:hover .glyph { transform: scale(1.22) translateY(-3px); }
+.note.lit .glyph { fill: url(#gGlyphB); animation: none; }
+
+.note.flash .glyph { animation: flashBig .9s ease-out both; }
+@keyframes flashBig {
+  0% { transform: scale(1); }
+  30% { transform: scale(2); }
+  100% { transform: scale(1); }
+}
+.note .hit { cursor: pointer; }
+
+.note .mini {
+  fill: #8f8b83; font-size: 11.5px; letter-spacing: 2px; opacity: 0; transition: opacity .8s;
+  font-family: "Noto Sans SC", sans-serif;
+}
+.note.lit .mini { opacity: .8; }
+#stage.solo .note .mini { opacity: 0; }
+
+/* ---------- 浮现姓名 ---------- */
+.lbl { opacity: 0; transition: opacity .9s; pointer-events: none; }
+.lbl.show { opacity: 1; }
+.lbl .nm {
+  fill: #1c1b19; font-size: 20px; font-weight: 900; letter-spacing: 5px;
+  font-family: "Noto Serif SC", serif;
+  paint-order: stroke; stroke: rgba(244, 242, 238, .9); stroke-width: 4px;
+}
+.lbl .rl {
+  fill: #d43d2a; font-size: 11px; letter-spacing: 3px; font-weight: 500;
+  font-family: "Noto Sans SC", sans-serif;
+  paint-order: stroke; stroke: rgba(244, 242, 238, .9); stroke-width: 3px;
+}
+
+/* ---------- 固定信息 ---------- */
+header {
+  position: fixed; z-index: 5; top: 64px; left: 0; right: 0;
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 10px 48px; color: #1c1b19;
+  border-bottom: 1px solid rgba(28, 27, 25, .18);
+  pointer-events: none;
+}
+header .brand {
+  font-family: "Noto Serif SC", serif; font-weight: 900;
+  font-size: 20px; letter-spacing: 6px;
+}
+header .brand .no { font-family: "Playfair Display", serif; font-style: italic; font-weight: 500; font-size: 12px; letter-spacing: 2px; color: #d43d2a; }
+header .en { font-family: "Playfair Display", serif; font-style: italic; font-size: 12.5px; letter-spacing: 2px; color: #55524c; }
+.hright { display: flex; align-items: center; gap: 16px; }
+
+#cornerBR {
+  position: fixed; z-index: 5; right: 48px; bottom: 78px;
+  font-size: 10.5px; letter-spacing: 2.5px; color: #8f8b83; pointer-events: none;
+  font-family: "Noto Sans SC", sans-serif;
+}
+
+#hint {
+  position: fixed; z-index: 5; left: 50%; bottom: 100px;
+  transform: translateX(-50%) translateY(8px);
+  font-size: 13.5px; letter-spacing: 4px; color: #1c1b19;
+  opacity: 0; transition: opacity 1.2s, transform 1.2s; pointer-events: none;
+  white-space: nowrap; font-weight: 600;
+}
+#hint.show { opacity: .92; transform: translateX(-50%) translateY(0); }
+
+#chip {
+  position: fixed; z-index: 5; top: 128px; left: 50%;
+  transform: translateX(-50%) translateY(-12px);
+  text-align: center; opacity: 0; transition: opacity .9s, transform .9s; pointer-events: none;
+}
+#chip.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+#chipName {
+  font-family: "Noto Serif SC", serif; font-weight: 900;
+  font-size: 24px; letter-spacing: 9px; color: #1c1b19;
+}
+#chipEn {
+  margin-top: 7px; font-size: 11px; letter-spacing: 4px; color: #d43d2a;
+  font-family: "Playfair Display", serif; font-style: italic;
+}
+#chipBack { margin-top: 8px; font-size: 10.5px; letter-spacing: 2.5px; color: #8f8b83; }
+
+#progress { position: fixed; z-index: 5; left: 48px; bottom: 78px; pointer-events: none; }
+#ptext {
+  font-size: 11px; letter-spacing: 3px; color: #55524c;
+  font-family: "Playfair Display", "Noto Sans SC", serif;
+}
+#dots { margin-top: 10px; display: flex; gap: 13px; }
+.dgrp { display: flex; gap: 7px; }
+#dots i {
+  width: 6px; height: 6px; border-radius: 0;
+  background: transparent; border: 1px solid rgba(28, 27, 25, .45);
+  transition: all .5s;
+}
+#dots i.on { background: #d43d2a; border-color: #d43d2a; }
+
+/* ---------- 入场（封面） ---------- */
+#gate {
+  position: fixed; inset: 0; z-index: 50;
+  display: flex; align-items: center; justify-content: center;
+  background: radial-gradient(ellipse 80% 60% at 50% 45%, #faf9f6 0%, #f4f2ee 60%, #eae7e0 100%);
+  cursor: pointer; transition: opacity 1.2s;
+}
+#gate.hide { opacity: 0; pointer-events: none; }
+.g-inner { text-align: center; animation: gateIn 1.8s ease both; }
+@keyframes gateIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; } }
+
+.g-ovl {
+  font-family: "Playfair Display", serif; font-style: italic;
+  font-size: 13px; letter-spacing: 6px; color: #8f8b83;
+}
+.g-title {
+  margin-top: 20px;
+  font-family: "Noto Serif SC", serif; font-weight: 900;
+  font-size: 120px; letter-spacing: 30px; text-indent: 30px; color: #1c1b19;
+  line-height: 1.1;
+}
+.g-title .dot { color: #d43d2a; letter-spacing: 0; text-indent: 0; }
+.g-en {
+  margin-top: 14px; font-family: "Playfair Display", serif; font-weight: 600;
+  font-size: 14px; letter-spacing: 8px; color: #55524c;
+}
+.g-script { margin-top: 16px; font-size: 13px; letter-spacing: 5px; color: #d43d2a; font-weight: 600; }
+.g-line {
+  margin: 30px auto 0; width: 400px;
+  font-size: 13px; line-height: 2.3; letter-spacing: 2px; color: #55524c;
+  font-family: "Noto Sans SC", sans-serif;
+}
+.g-hp {
+  margin-top: 26px; font-size: 11px; letter-spacing: 2.5px; color: #8f8b83;
+  font-family: "Noto Sans SC", sans-serif;
+}
+.g-btn {
+  margin: 34px auto 0; width: 180px; height: 52px; line-height: 50px;
+  background: #1c1b19; border: none;
+  font-size: 14px; letter-spacing: 14px; text-indent: 14px; color: #f4f2ee;
+  font-family: "Noto Serif SC", serif;
+  transition: background .4s;
+}
+.g-btn:hover { background: #d43d2a; }
+.g-tip {
+  margin-top: 20px; font-size: 10.5px; letter-spacing: 2.5px; color: #8f8b83;
+  font-family: "Noto Sans SC", sans-serif;
+}
+
+/* ---------- 个人卡片（专稿页） ---------- */
+#modal {
+  position: fixed; inset: 0; z-index: 40;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(28, 27, 25, .4);
+  opacity: 0; pointer-events: none; transition: opacity .5s;
+}
+#modal.show { opacity: 1; pointer-events: auto; }
+
+#card {
+  position: relative; width: 420px; max-width: 88vw;
+  padding: 44px 44px 36px;
+  background: #faf9f6;
+  border: 1px solid rgba(28, 27, 25, .55);
+  box-shadow: 10px 12px 0 rgba(28, 27, 25, .16), 0 24px 60px rgba(28, 27, 25, .22);
+  transform: translateY(12px);
+  transition: transform .5s cubic-bezier(.2,.8,.3,1);
+}
+#modal.show #card { transform: translateY(0); }
+#card::before {
+  content: ""; position: absolute; top: 8px; left: 8px; right: 8px; bottom: 8px;
+  border: 1px solid rgba(28, 27, 25, .22); pointer-events: none;
+}
+
+#mclose {
+  position: absolute; top: 16px; right: 18px; z-index: 2;
+  background: none; border: none; font-size: 20px; color: #55524c; cursor: pointer;
+}
+#mclose:hover { color: #d43d2a; }
+
+#mimg {
+  position: absolute; top: 30px; right: 34px; z-index: 1;
+  width: 100px; height: 100px;
+  object-fit: cover; filter: grayscale(100%) contrast(1.05);
+  border: 1px solid rgba(28, 27, 25, .5);
+}
+
+.ovl {
+  font-size: 10px; letter-spacing: 4px; color: #8f8b83;
+  font-family: "Playfair Display", "Noto Sans SC", serif; font-style: italic;
+}
+#mname {
+  margin-top: 16px;
+  font-family: "Noto Serif SC", serif; font-weight: 900;
+  font-size: 50px; letter-spacing: 12px; color: #1c1b19;
+}
+#mrole {
+  margin-top: 10px; font-size: 13px; letter-spacing: 3px; color: #d43d2a; font-weight: 600;
+  font-family: "Noto Sans SC", sans-serif;
+}
+#mtimbre {
+  margin-top: 6px; font-size: 11px; letter-spacing: 2px; color: #8f8b83;
+  font-family: "Playfair Display", "Noto Sans SC", serif;
+}
+
+.card-hr { margin: 24px 0; height: 3px; background: #1c1b19; }
+#mquote {
+  font-size: 17px; line-height: 2.05; letter-spacing: 1.5px; color: #1c1b19; font-weight: 600;
+}
+#mtrait { margin-top: 16px; font-size: 12.5px; line-height: 2; letter-spacing: 1px; color: #55524c; }
+
+#mfoot {
+  margin-top: 26px; padding-top: 16px;
+  border-top: 1px solid rgba(28, 27, 25, .35);
+  font-size: 10.5px; letter-spacing: 3px; color: #8f8b83;
+  font-family: "Playfair Display", "Noto Sans SC", serif;
+}
+#mfoot b { color: #d43d2a; font-weight: 600; }
+
+/* ---------- 终章（合订本） ---------- */
+#finale {
+  position: fixed; inset: 0; z-index: 45;
+  display: flex; align-items: center; justify-content: center;
+  background: radial-gradient(ellipse 80% 60% at 50% 45%, #faf9f6 0%, #f4f2ee 60%, #eae7e0 100%);
+  opacity: 0; pointer-events: none; transition: opacity 1.6s;
+}
+#finale.show { opacity: 1; pointer-events: auto; }
+.f-inner { text-align: center; padding: 0 24px; animation: gateIn 1.6s ease both; }
+
+.f-ovl {
+  font-family: "Playfair Display", serif; font-style: italic;
+  font-size: 12px; letter-spacing: 6px; color: #8f8b83;
+}
+.f-title {
+  margin-top: 26px;
+  font-family: "Noto Serif SC", serif; font-weight: 900;
+  font-size: 42px; line-height: 1.9; letter-spacing: 8px; color: #1c1b19;
+}
+.f-names { margin: 42px auto 0; display: flex; gap: 54px; justify-content: center; flex-wrap: wrap; }
+.f-col { min-width: 150px; }
+.f-col h4 {
+  font-size: 11px; font-weight: 600; letter-spacing: 4px; color: #d43d2a;
+  padding-bottom: 10px; border-bottom: 2px solid #1c1b19; margin-bottom: 12px;
+  font-family: "Noto Sans SC", sans-serif;
+}
+.f-col p { font-size: 14px; letter-spacing: 3.5px; line-height: 2.3; color: #3c3a36; }
+
+.f-line {
+  margin-top: 44px; font-size: 12.5px; letter-spacing: 5px; color: #1c1b19;
+  font-family: "Playfair Display", "Noto Sans SC", serif;
+}
+.f-sub { margin-top: 12px; font-size: 11.5px; letter-spacing: 3px; color: #8f8b83; }
+
+#replay {
+  margin-top: 42px; padding: 14px 46px;
+  background: #d43d2a; border: none;
+  font-size: 13px; letter-spacing: 10px; text-indent: 10px; color: #faf9f6; cursor: pointer;
+  font-family: "Noto Serif SC", serif;
+  transition: background .4s;
+}
+#replay:hover { background: #1c1b19; }
+
+/* ---------- 名单管理 ---------- */
+#rosterBtn {
+  pointer-events: auto; background: none;
+  border: 1px solid rgba(28, 27, 25, .55); border-radius: 0;
+  padding: 7px 16px; font-size: 11px; letter-spacing: 3px; color: #1c1b19;
+  cursor: pointer; transition: all .4s; font-family: "Noto Sans SC", sans-serif;
+}
+#rosterBtn:hover { background: #1c1b19; color: #f4f2ee; }
+
+#rosterModal {
+  position: fixed; inset: 0; z-index: 46;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(28, 27, 25, .45);
+  opacity: 0; pointer-events: none; transition: opacity .45s;
+}
+#rosterModal.show { opacity: 1; pointer-events: auto; }
+
+.rcard {
+  position: relative; width: 460px; max-width: 90vw;
+  padding: 40px 40px 30px;
+  background: #faf9f6; border: 1px solid rgba(28, 27, 25, .6);
+  box-shadow: 10px 12px 0 rgba(28, 27, 25, .16);
+  transform: translateY(12px);
+  transition: transform .45s cubic-bezier(.2,.8,.3,1);
+}
+#rosterModal.show .rcard { transform: translateY(0); }
+.rclose {
+  position: absolute; top: 12px; right: 16px; background: none; border: none;
+  font-size: 20px; color: #55524c; cursor: pointer;
+}
+.rclose:hover { color: #d43d2a; }
+.rtitle {
+  margin-top: 12px; font-family: "Noto Serif SC", serif; font-weight: 900;
+  font-size: 28px; letter-spacing: 6px; color: #1c1b19;
+}
+.rdesc { margin-top: 12px; font-size: 13px; line-height: 1.9; color: #55524c; }
+.rstatus {
+  margin-top: 16px; padding: 10px 16px; border: 1px solid rgba(28, 27, 25, .4);
+  font-size: 12px; letter-spacing: 2px; color: #1c1b19;
+}
+.rbtns { margin-top: 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.rbtns button {
+  padding: 13px 10px; background: none; border: 1px solid rgba(28, 27, 25, .6);
+  font-size: 13px; letter-spacing: 2px; color: #1c1b19; cursor: pointer;
+  transition: all .4s; font-family: "Noto Sans SC", sans-serif;
+}
+.rbtns button:hover { background: #1c1b19; color: #f4f2ee; }
+#rreset { border-color: #d43d2a; color: #d43d2a; }
+#rreset:hover { background: #d43d2a; color: #faf9f6; }
+.rhelp {
+  margin-top: 20px; padding-top: 14px; border-top: 1px solid rgba(28, 27, 25, .35);
+  font-size: 11px; line-height: 2; color: #8f8b83;
+}
+
+/* ---------- 浮消息 ---------- */
+#toast {
+  position: fixed; z-index: 60; top: 84px; left: 50%;
+  transform: translateX(-50%) translateY(-8px);
+  max-width: 82vw; padding: 12px 26px;
+  background: #1c1b19; border: none;
+  font-size: 13px; letter-spacing: 2px; color: #f4f2ee;
+  opacity: 0; pointer-events: none; transition: opacity .4s, transform .4s;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+#toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+#toast.err { background: #d43d2a; }
+
+@media (max-width: 720px) {
+  header { padding: 8px 20px; }
+  header .en { display: none; }
+  .letterbox { height: 40px; }
+  header { top: 40px; }
+  #cornerBR { right: 20px; bottom: 56px; }
+  #progress { left: 20px; bottom: 56px; }
+  #hint { bottom: 110px; font-size: 12px; white-space: normal; width: 86vw; text-align: center; }
+  .g-title { font-size: 72px; letter-spacing: 16px; text-indent: 16px; }
+  .f-title { font-size: 28px; }
+  .f-names { gap: 26px; }
+  #chipName { font-size: 19px; }
+  #chip { top: 104px; }
+  .rcard { padding: 30px 24px 24px; }
+  .rbtns { grid-template-columns: 1fr; }
+  .bg-word { font-size: 160px; }
+}

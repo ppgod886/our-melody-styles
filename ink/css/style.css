@@ -1,0 +1,386 @@
+/* ============================================================
+   乐章 · 水墨卷 —— 宣纸 · 墨 · 朱砂
+   ============================================================ */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html, body {
+  height: 100%; overflow: hidden;
+  background: #efeadd;
+  font-family: "Noto Serif SC", "STSong", serif;
+  color: #2f2c26;
+  -webkit-font-smoothing: antialiased;
+  user-select: none;
+}
+
+/* 宣纸底色 + 纤维纹 */
+body::before {
+  content: ""; position: fixed; inset: 0; z-index: 0;
+  background:
+    radial-gradient(ellipse 70% 55% at 50% 42%, #faf7ee 0%, #f1ecdf 55%, #e7e1cf 100%);
+}
+body::after {
+  content: ""; position: fixed; inset: 0; z-index: 0; opacity: .5; pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3CfeColorMatrix values='0 0 0 0 0.55 0 0 0 0 0.52 0 0 0 0 0.45 0 0 0 0.06 0'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+#mountains { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 0; }
+#dust { position: fixed; inset: 0; z-index: 1; }
+
+#vignette {
+  position: fixed; inset: 0; z-index: 3; pointer-events: none;
+  background: radial-gradient(ellipse at 50% 50%,
+    transparent 55%, rgba(120, 108, 84, .14) 82%, rgba(96, 86, 64, .3) 100%);
+}
+
+#stage { position: fixed; inset: 0; z-index: 2; width: 100%; height: 100%; }
+
+/* ---------- 环形五线谱 ---------- */
+.staff { fill: none; stroke: url(#gStaff); stroke-width: 1; }
+.ring-ghost { fill: none; stroke: #7d7666; opacity: .12; stroke-width: 1; }
+
+.comet {
+  fill: none; stroke: url(#gComet); stroke-width: 2.2; stroke-linecap: round;
+  stroke-dasharray: 16 84; animation: cometRun 22s linear infinite; pointer-events: none;
+  opacity: .75;
+}
+.comet.c2 { animation-duration: 30s; animation-direction: reverse; opacity: .4; stroke-width: 1.4; }
+@keyframes cometRun { to { stroke-dashoffset: -200; } }
+
+.arc { stroke: #8a5147; stroke-width: 3; stroke-linecap: round; opacity: 0; transition: opacity .7s; pointer-events: none; }
+.arc.warm { opacity: .35; }
+.arc.hot  { opacity: .9; }
+.archit { cursor: pointer; pointer-events: stroke; }
+
+/* ---------- 音符（墨点） ---------- */
+.note { transition: opacity .8s; }
+.note.dim { opacity: .16; pointer-events: none; }
+
+.note .halo { fill: url(#gHalo); opacity: 0; transition: opacity 1.2s; }
+.note.lit .halo { opacity: .9; animation: haloPulse 3.4s ease-in-out infinite; }
+@keyframes haloPulse { 0%,100% { opacity: .55; } 50% { opacity: .95; } }
+
+.note .oring {
+  fill: none; stroke: #a63f36; stroke-width: 1; stroke-dasharray: 2 6;
+  opacity: 0; transition: opacity .8s;
+}
+.note.lit .oring { opacity: .75; animation: ringSpin 16s linear infinite; }
+@keyframes ringSpin { to { stroke-dashoffset: -160; } }
+
+.note .tilt { transform-box: fill-box; transform-origin: center; }
+.note .bob {
+  transform-box: fill-box; transform-origin: center;
+  animation: noteFloat 5.4s ease-in-out infinite;
+  animation-delay: calc(var(--fi, 0) * -1.1s);
+}
+@keyframes noteFloat { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
+
+.note .glyph {
+  fill: url(#gGlyphA); filter: url(#fShadow); cursor: pointer;
+  transform-box: fill-box; transform-origin: center;
+  transition: transform .35s cubic-bezier(.2,.8,.3,1.2);
+}
+.note.alt .glyph { fill: url(#gGlyphB); }
+.note:hover .glyph { transform: scale(1.26); }
+.note.lit .glyph { animation: litBreath 3.6s ease-in-out infinite; }
+@keyframes litBreath { 0%,100% { opacity: 1; } 50% { opacity: .78; } }
+
+.note.flash .glyph { animation: flashBig .95s cubic-bezier(.2,.8,.3,1) both; }
+@keyframes flashBig {
+  0% { transform: scale(1); }
+  30% { transform: scale(2); filter: brightness(1.4); }
+  100% { transform: scale(1); filter: brightness(1); }
+}
+.note .hit { cursor: pointer; }
+
+.note .mini { fill: #6d6552; font-size: 12px; letter-spacing: 2px; opacity: 0; transition: opacity .8s; font-family: "Noto Serif SC", serif; }
+.note.lit .mini { opacity: .85; }
+#stage.solo .note .mini { opacity: 0; }
+
+/* ---------- 浮现姓名 ---------- */
+.lbl { opacity: 0; transition: opacity .9s; pointer-events: none; }
+.lbl.show { opacity: 1; }
+.lbl .nm {
+  fill: #2f2c26; font-size: 21px; font-weight: 600; letter-spacing: 5px;
+  font-family: "Ma Shan Zheng", "Noto Serif SC", serif;
+  paint-order: stroke; stroke: rgba(244, 240, 229, .85); stroke-width: 4px;
+}
+.lbl .rl {
+  fill: #8a5147; font-size: 11.5px; letter-spacing: 3px;
+  paint-order: stroke; stroke: rgba(244, 240, 229, .85); stroke-width: 3px;
+}
+
+/* ---------- 固定信息 ---------- */
+header {
+  position: fixed; z-index: 5; top: 0; left: 0; right: 0;
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 26px 38px; font-size: 12.5px; letter-spacing: 4px; color: #6d6552;
+  pointer-events: none;
+}
+header .brand b { color: #a63f36; font-weight: 600; font-family: "Ma Shan Zheng", serif; font-size: 15px; }
+header .en { opacity: .55; letter-spacing: 3px; font-size: 11px; }
+.hright { display: flex; align-items: center; gap: 16px; }
+
+#cornerBR {
+  position: fixed; z-index: 5; right: 38px; bottom: 30px;
+  font-size: 11.5px; letter-spacing: 3px; color: #9b9280; pointer-events: none;
+}
+
+#hint {
+  position: fixed; z-index: 5; left: 50%; bottom: 96px;
+  transform: translateX(-50%) translateY(10px);
+  font-size: 14px; letter-spacing: 4px; color: #57503f;
+  opacity: 0; transition: opacity 1.2s, transform 1.2s; pointer-events: none;
+  text-shadow: 0 0 12px rgba(250, 247, 238, .95);
+  white-space: nowrap;
+}
+#hint.show { opacity: .95; transform: translateX(-50%) translateY(0); }
+
+#chip {
+  position: fixed; z-index: 5; top: 20px; left: 50%;
+  transform: translateX(-50%) translateY(-14px);
+  text-align: center; opacity: 0; transition: opacity .9s, transform .9s; pointer-events: none;
+}
+#chip.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+#chipName {
+  font-family: "Ma Shan Zheng", serif; font-size: 27px; letter-spacing: 10px; color: #2f2c26;
+}
+#chipEn { margin-top: 8px; font-size: 11px; letter-spacing: 3px; color: #8a5147; }
+#chipBack { margin-top: 9px; font-size: 11px; letter-spacing: 3px; color: #9b9280; }
+
+#progress { position: fixed; z-index: 5; left: 38px; bottom: 28px; pointer-events: none; }
+#ptext { font-size: 12px; letter-spacing: 3px; color: #6d6552; }
+#dots { margin-top: 10px; display: flex; gap: 14px; }
+.dgrp { display: flex; gap: 7px; }
+#dots i {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: rgba(109, 101, 82, .12); border: 1px solid rgba(109, 101, 82, .4);
+  transition: all .6s;
+}
+#dots i.on { background: #a63f36; border-color: #a63f36; box-shadow: 0 0 8px rgba(166, 63, 54, .6); }
+
+/* ---------- 入场 ---------- */
+#gate {
+  position: fixed; inset: 0; z-index: 50;
+  display: flex; align-items: center; justify-content: center;
+  background:
+    radial-gradient(ellipse 70% 55% at 50% 42%, #faf7ee 0%, #f1ecdf 55%, #e7e1cf 100%);
+  cursor: pointer; transition: opacity 1.4s;
+}
+#gate.hide { opacity: 0; pointer-events: none; }
+.g-inner { text-align: center; animation: gateIn 2.2s ease both; }
+@keyframes gateIn { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; } }
+
+.g-ovl { font-size: 12px; letter-spacing: 12px; color: #9b9280; }
+.g-title {
+  margin-top: 26px;
+  font-family: "Ma Shan Zheng", "Noto Serif SC", serif;
+  font-size: 78px; font-weight: 400; letter-spacing: 14px;
+  color: #2f2c26;
+}
+.g-en { margin-top: 14px; font-size: 12px; letter-spacing: 7px; color: #a63f36; }
+.g-script {
+  margin-top: 14px;
+  font-family: "Ma Shan Zheng", serif; font-size: 20px; letter-spacing: 6px; color: #6d6552;
+}
+.g-line {
+  margin: 32px auto 0; width: 380px;
+  font-size: 13.5px; line-height: 2.3; letter-spacing: 2px; color: #57503f;
+}
+.g-hp { margin-top: 28px; font-size: 12.5px; letter-spacing: 4px; color: #8a5147; }
+.g-btn {
+  margin: 36px auto 0; width: 172px; height: 54px; line-height: 52px;
+  border: 1px solid #a63f36; border-radius: 2px;
+  font-size: 15px; letter-spacing: 12px; text-indent: 12px; color: #a63f36;
+  font-family: "Ma Shan Zheng", serif;
+  animation: btnBreath 3s ease-in-out infinite; transition: background .5s;
+}
+.g-btn:hover { background: rgba(166, 63, 54, .07); }
+@keyframes btnBreath {
+  0%,100% { box-shadow: 0 0 0 0 rgba(166,63,54,.25); }
+  50% { box-shadow: 0 0 22px 2px rgba(166,63,54,.2); }
+}
+.g-tip { margin-top: 22px; font-size: 11px; letter-spacing: 3px; color: #9b9280; }
+
+/* ---------- 个人卡片（纸笺） ---------- */
+#modal {
+  position: fixed; inset: 0; z-index: 40;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(72, 64, 50, .3);
+  opacity: 0; pointer-events: none; transition: opacity .5s;
+}
+#modal.show { opacity: 1; pointer-events: auto; }
+
+#card {
+  position: relative; width: 400px; max-width: 88vw;
+  padding: 46px 44px 38px;
+  background: #faf7ee;
+  border: 1px solid rgba(90, 82, 66, .45);
+  box-shadow: 0 24px 70px rgba(90, 78, 55, .3);
+  transform: translateY(14px) scale(.97);
+  transition: transform .5s cubic-bezier(.2,.8,.3,1.1);
+}
+#modal.show #card { transform: translateY(0) scale(1); }
+#card::before, #card::after {
+  content: ""; position: absolute; width: 22px; height: 22px;
+  border-color: #a63f36; border-style: solid;
+}
+#card::before { top: -1px; left: -1px; border-width: 2px 0 0 2px; }
+#card::after  { bottom: -1px; right: -1px; border-width: 0 2px 2px 0; }
+
+#mclose {
+  position: absolute; top: 10px; right: 14px;
+  background: none; border: none; font-size: 22px; color: #9b9280; cursor: pointer; transition: color .3s;
+}
+#mclose:hover { color: #a63f36; }
+
+#mimg {
+  position: absolute; top: 34px; right: 36px;
+  width: 96px; height: 96px; border-radius: 50%;
+  object-fit: cover; border: 1px solid rgba(166, 63, 54, .5);
+  box-shadow: 0 6px 18px rgba(90, 78, 55, .3);
+}
+
+.ovl { font-size: 10px; letter-spacing: 5px; color: #9b9280; }
+#mname {
+  margin-top: 16px;
+  font-family: "Ma Shan Zheng", serif;
+  font-size: 52px; font-weight: 400; letter-spacing: 12px; color: #2f2c26;
+}
+#mrole { margin-top: 10px; font-size: 13px; letter-spacing: 3px; color: #a63f36; }
+#mtimbre { margin-top: 6px; font-size: 11px; letter-spacing: 2px; color: #9b9280; }
+
+.card-hr { margin: 24px 0; height: 1px; background: linear-gradient(90deg, rgba(90,82,66,.5), rgba(90,82,66,0)); }
+#mquote {
+  font-family: "Noto Serif SC", serif;
+  font-size: 17.5px; line-height: 2; letter-spacing: 2px; color: #2f2c26;
+}
+#mtrait { margin-top: 16px; font-size: 13px; line-height: 1.9; letter-spacing: 1px; color: #6d6552; }
+
+#mfoot {
+  margin-top: 28px; padding-top: 18px;
+  border-top: 1px dashed rgba(90, 82, 66, .35);
+  font-size: 11px; letter-spacing: 3px; color: #9b9280;
+}
+#mfoot b { color: #a63f36; font-weight: 600; }
+
+/* ---------- 终章 ---------- */
+#finale {
+  position: fixed; inset: 0; z-index: 45;
+  display: flex; align-items: center; justify-content: center;
+  background: radial-gradient(ellipse at 50% 42%, #faf7ee 0%, #f1ecdf 55%, #e7e1cf 100%);
+  opacity: 0; pointer-events: none; transition: opacity 1.8s;
+}
+#finale.show { opacity: 1; pointer-events: auto; }
+.f-inner { text-align: center; padding: 0 24px; animation: gateIn 2s ease both; }
+
+.f-ovl { font-size: 11px; letter-spacing: 8px; color: #9b9280; }
+.f-title {
+  margin-top: 30px;
+  font-family: "Ma Shan Zheng", serif;
+  font-size: 44px; font-weight: 400; line-height: 1.9; letter-spacing: 10px; color: #2f2c26;
+}
+.f-names { margin: 44px auto 0; display: flex; gap: 56px; justify-content: center; flex-wrap: wrap; }
+.f-col { min-width: 150px; }
+.f-col h4 {
+  font-size: 11px; font-weight: 400; letter-spacing: 4px; color: #8a5147;
+  padding-bottom: 12px; border-bottom: 1px solid rgba(90, 82, 66, .3); margin-bottom: 14px;
+}
+.f-col p { font-size: 14px; letter-spacing: 4px; line-height: 2.3; color: #57503f; }
+
+.f-line { margin-top: 46px; font-size: 13px; letter-spacing: 5px; color: #a63f36; }
+.f-sub { margin-top: 14px; font-size: 12px; letter-spacing: 3px; color: #9b9280; }
+
+#replay {
+  margin-top: 44px; padding: 14px 46px;
+  background: none; border: 1px solid #a63f36; border-radius: 2px;
+  font-size: 13px; letter-spacing: 6px; text-indent: 6px; color: #a63f36; cursor: pointer;
+  transition: background .5s, box-shadow .5s; font-family: inherit;
+}
+#replay:hover { background: rgba(166, 63, 54, .07); box-shadow: 0 0 22px rgba(166, 63, 54, .2); }
+
+/* ---------- 名单管理 ---------- */
+#rosterBtn {
+  pointer-events: auto; background: none;
+  border: 1px solid rgba(109, 101, 82, .5); border-radius: 2px;
+  padding: 7px 16px; font-size: 11px; letter-spacing: 3px; color: #6d6552;
+  cursor: pointer; transition: all .4s; font-family: inherit;
+}
+#rosterBtn:hover { border-color: #a63f36; color: #a63f36; }
+
+#rosterModal {
+  position: fixed; inset: 0; z-index: 46;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(72, 64, 50, .35);
+  opacity: 0; pointer-events: none; transition: opacity .45s;
+}
+#rosterModal.show { opacity: 1; pointer-events: auto; }
+
+.rcard {
+  position: relative; width: 460px; max-width: 90vw;
+  padding: 42px 42px 32px;
+  background: #faf7ee; border: 1px solid rgba(90, 82, 66, .5);
+  box-shadow: 0 24px 70px rgba(90, 78, 55, .35);
+  transform: translateY(14px) scale(.97);
+  transition: transform .45s cubic-bezier(.2,.8,.3,1.1);
+}
+#rosterModal.show .rcard { transform: translateY(0) scale(1); }
+.rcard::before, .rcard::after {
+  content: ""; position: absolute; width: 22px; height: 22px;
+  border-color: #a63f36; border-style: solid;
+}
+.rcard::before { top: -1px; left: -1px; border-width: 2px 0 0 2px; }
+.rcard::after  { bottom: -1px; right: -1px; border-width: 0 2px 2px 0; }
+.rclose {
+  position: absolute; top: 10px; right: 14px; background: none; border: none;
+  font-size: 22px; color: #9b9280; cursor: pointer;
+}
+.rclose:hover { color: #a63f36; }
+.rtitle {
+  margin-top: 14px; font-family: "Ma Shan Zheng", serif;
+  font-size: 32px; letter-spacing: 8px; color: #2f2c26;
+}
+.rdesc { margin-top: 14px; font-size: 13px; line-height: 1.9; letter-spacing: 1px; color: #6d6552; }
+.rstatus {
+  margin-top: 18px; padding: 10px 16px; border: 1px dashed rgba(90, 82, 66, .4);
+  font-size: 12px; letter-spacing: 2px; color: #a63f36;
+}
+.rbtns { margin-top: 22px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.rbtns button {
+  padding: 13px 10px; background: none; border: 1px solid rgba(90, 82, 66, .5);
+  font-size: 13px; letter-spacing: 2px; color: #2f2c26; cursor: pointer;
+  transition: all .4s; font-family: inherit;
+}
+.rbtns button:hover { background: rgba(166, 63, 54, .06); box-shadow: 0 0 16px rgba(166, 63, 54, .15); }
+#rreset { border-color: rgba(166, 63, 54, .5); color: #a63f36; }
+.rhelp {
+  margin-top: 22px; padding-top: 16px; border-top: 1px dashed rgba(90, 82, 66, .35);
+  font-size: 11px; line-height: 2; letter-spacing: 1px; color: #9b9280;
+}
+
+/* ---------- 浮消息 ---------- */
+#toast {
+  position: fixed; z-index: 60; top: 24px; left: 50%;
+  transform: translateX(-50%) translateY(-8px);
+  max-width: 82vw; padding: 12px 26px;
+  background: #faf7ee; border: 1px solid rgba(90, 82, 66, .5);
+  box-shadow: 0 12px 30px rgba(90, 78, 55, .3);
+  font-size: 13px; letter-spacing: 2px; color: #2f2c26;
+  opacity: 0; pointer-events: none; transition: opacity .4s, transform .4s;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+#toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+#toast.err { border-color: #a63f36; color: #a63f36; }
+
+@media (max-width: 720px) {
+  header { padding: 18px 20px; }
+  header .en { display: none; }
+  #cornerBR { right: 20px; bottom: 20px; }
+  #progress { left: 20px; bottom: 20px; }
+  #hint { bottom: 120px; font-size: 12px; white-space: normal; width: 86vw; text-align: center; }
+  .g-title { font-size: 48px; letter-spacing: 10px; }
+  .f-title { font-size: 30px; letter-spacing: 6px; }
+  .f-names { gap: 28px; }
+  #chipName { font-size: 20px; letter-spacing: 5px; }
+  .rcard { padding: 32px 24px 24px; }
+  .rbtns { grid-template-columns: 1fr; }
+}

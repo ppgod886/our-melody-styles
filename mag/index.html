@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>乐章 · 刊 ISSUE 06 — GROUP 06</title>
+<meta name="description" content="一本由二十五人合写的乐章刊物。点击谱线听一个声部，点音符读一个人。">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,900;1,500&family=Noto+Serif+SC:wght@600;900&family=Noto+Sans+SC:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css?v=2">
+</head>
+<body>
+
+<!-- 电影黑边 -->
+<div class="letterbox top"></div>
+<div class="letterbox bottom"></div>
+
+<canvas id="dust"></canvas>
+
+<!-- 环形五线谱 -->
+<svg id="stage" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid meet">
+  <defs>
+    <linearGradient id="gGlyphA" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#2d2b28"/>
+      <stop offset="100%" stop-color="#111110"/>
+    </linearGradient>
+    <linearGradient id="gGlyphB" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#e0472f"/>
+      <stop offset="100%" stop-color="#b93321"/>
+    </linearGradient>
+    <linearGradient id="gStaff" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#55524c" stop-opacity=".08"/>
+      <stop offset="40%" stop-color="#3c3a36" stop-opacity=".4"/>
+      <stop offset="65%" stop-color="#3c3a36" stop-opacity=".45"/>
+      <stop offset="100%" stop-color="#55524c" stop-opacity=".08"/>
+    </linearGradient>
+    <linearGradient id="gComet" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#3c3a36" stop-opacity="0"/>
+      <stop offset="100%" stop-color="#d43d2a"/>
+    </linearGradient>
+    <radialGradient id="gHalo">
+      <stop offset="0%" stop-color="#d43d2a" stop-opacity=".34"/>
+      <stop offset="50%" stop-color="#d43d2a" stop-opacity=".14"/>
+      <stop offset="100%" stop-color="#d43d2a" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="fShadow" x="-80%" y="-80%" width="260%" height="260%">
+      <feDropShadow dx="0" dy="4" stdDeviation="3" flood-color="#22201c" flood-opacity="0.35"/>
+    </filter>
+  </defs>
+
+  <ellipse class="ring-ghost" cx="800" cy="452" rx="624" ry="236" transform="rotate(-10 800 452)"/>
+
+  <g id="ringbase">
+    <ellipse class="staff" cx="800" cy="452" rx="496" ry="180" transform="rotate(-10 800 452)"/>
+    <ellipse class="staff" cx="800" cy="452" rx="518" ry="189" transform="rotate(-10 800 452)"/>
+    <ellipse class="staff" cx="800" cy="452" rx="540" ry="198" transform="rotate(-10 800 452)"/>
+    <ellipse class="staff" cx="800" cy="452" rx="562" ry="207" transform="rotate(-10 800 452)"/>
+    <ellipse class="staff" cx="800" cy="452" rx="584" ry="216" transform="rotate(-10 800 452)"/>
+  </g>
+
+  <ellipse class="comet" cx="800" cy="452" rx="540" ry="198" transform="rotate(-10 800 452)" pathLength="100"/>
+
+  <!-- 刊号大字（背景排版） -->
+  <text class="bg-word" x="800" y="500" text-anchor="middle">廿五</text>
+
+  <g id="arcs"></g>
+  <g id="notes"></g>
+  <g id="labels"></g>
+</svg>
+
+<div class="grain"></div>
+<div id="vignette"></div>
+
+<header>
+  <div class="brand">樂章 <span class="no">/ ISSUE 06</span></div>
+  <div class="hright">
+    <button id="rosterBtn" title="上传 / 管理小组名单">⬆ 名单</button>
+    <div class="en">TWENTY-FIVE NOTES · ONE SONG</div>
+  </div>
+</header>
+
+<div id="chip">
+  <div id="chipName"></div>
+  <div id="chipEn"></div>
+  <div id="chipBack">再点一次这段谱线，或点空白处，回到全曲</div>
+</div>
+
+<div id="hint"></div>
+
+<div id="progress">
+  <span id="ptext">已点亮 0 / 25</span>
+  <div id="dots"></div>
+</div>
+
+<div id="cornerBR">🎧 建议佩戴耳机 · 63 BPM · 黑白印刷</div>
+
+<!-- 个人卡片 -->
+<div id="modal">
+  <div id="card">
+    <button id="mclose" aria-label="关闭">×</button>
+    <img id="mimg" alt="" hidden>
+    <div class="ovl">人物专稿 · <span id="mnum"></span> / <span id="mnumTotal">25</span></div>
+    <h2 id="mname"></h2>
+    <div id="mrole"></div>
+    <div id="mtimbre"></div>
+    <div class="card-hr"></div>
+    <p id="mquote"></p>
+    <p id="mtrait"></p>
+    <div id="mfoot">本条已收录 · <b id="mcount"></b></div>
+  </div>
+</div>
+
+<!-- 终章 -->
+<div id="finale">
+  <div class="f-inner">
+    <div class="f-ovl" id="finaleOvl">FINALE · 全员付印</div>
+    <h2 class="f-title">二十五篇文章，<br>合订成同一期乐章。</h2>
+    <div class="f-names" id="fnames"></div>
+    <div class="f-line" id="fline">ISSUE 06 · 二十五位作者 ｜ GROUP 06</div>
+    <div class="f-sub">黑白是底色，每个人都是那一处印红。</div>
+    <br>
+    <button id="replay">重读这一期</button>
+  </div>
+</div>
+
+<!-- 名单管理 -->
+<div id="rosterModal">
+  <div class="rcard">
+    <button class="rclose" id="rosterClose" aria-label="关闭">×</button>
+    <div class="ovl">ROSTER · 名单管理</div>
+    <h2 class="rtitle">换一批作者</h2>
+    <p class="rdesc">选一份 CSV / JSON / Excel 表格，整环音符立即换成新的小组——人数可变，音高与音色自动分配。</p>
+    <div class="rstatus" id="rstatus"></div>
+    <div class="rbtns">
+      <button id="rupload">选择文件上传</button>
+      <button id="rtpl">下载 CSV 模板</button>
+      <button id="rexport">导出当前名单</button>
+      <button id="rreset">恢复默认名单</button>
+    </div>
+    <input type="file" id="rfile" accept=".csv,.json,.xlsx,.xls,.txt" hidden>
+    <div class="rhelp">
+      表格列：姓名（必填）、职责、一句话简介、个人特色、声部（1/2/3 或 低/中/高）、音高（可留空）。<br>
+      名单只保存在这台设备的浏览器里，随时可恢复默认；建议 3～40 人。
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<!-- 入场（封面） -->
+<div id="gate">
+  <div class="g-inner">
+    <div class="g-ovl">GROUP 06 · A QUARTERLY OF US</div>
+    <h1 class="g-title">樂<span class="dot">·</span>章</h1>
+    <div class="g-en">ISSUE 06 · THE MUSIC ISSUE</div>
+    <div class="g-script">—— 二十五位作者的一次合刊 ——</div>
+    <p class="g-line">
+      黑白是这份刊物的底色，<br>
+      每个人是其中一处印红、一行署名、一段旋律。<br>
+      点开每一个音符，读一篇文章。
+    </p>
+    <div class="g-hp">🎧 建议佩戴耳机 · 爵士钢琴 · 63 BPM · 含黑胶底噪</div>
+    <div class="g-btn">翻 开</div>
+    <div class="g-tip">点击任意处，开始阅读</div>
+  </div>
+</div>
+
+<script src="js/members.js?v=2"></script>
+<script src="js/audio.js?v=2"></script>
+<script src="js/roster.js?v=2"></script>
+<script src="js/main.js?v=2"></script>
+<script src="js/bg.js?v=2"></script>
+</body>
+</html>
