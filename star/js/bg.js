@@ -4,7 +4,9 @@
   const NS = 'http://www.w3.org/2000/svg';
   const stage = document.getElementById('stage');
   const g = document.createElementNS(NS, 'g');
+  g.style.pointerEvents = 'none';
   stage.appendChild(g);
+  if (window.REDUCE_MOTION) { return; }
 
   const lines = [];
   const LINE_N = 22;

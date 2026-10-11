@@ -86,6 +86,7 @@ const Roster = (() => {
   function rosterFromCSV(text) { return rowsToRaw(parseCSV(text)); }
 
   function pick(obj, keys, fallback) {
+    if (!obj || typeof obj !== 'object') return fallback;
     for (const k of keys) {
       if (obj[k] !== undefined && obj[k] !== null && String(obj[k]).trim() !== '') return obj[k];
     }
@@ -103,7 +104,9 @@ const Roster = (() => {
       trait:   String(pick(x, ['trait', '特色', '个人特色'], '')).trim(),
       section: pick(x, ['section', '声部', '组别', '分组'], ''),
       pitch:   String(pick(x, ['pitch', '音高'], '')).trim(),
-      timbre:  x.timbre && x.timbre.wave ? { wave: x.timbre.wave, cutoff: +x.timbre.cutoff || 1800, vol: +x.timbre.vol || 0.85 } : null,
+      timbre: (x.timbre && ['sine', 'triangle', 'sawtooth', 'square'].includes(x.timbre.wave))
+        ? { wave: x.timbre.wave, cutoff: +x.timbre.cutoff || 1800, vol: Math.min(1, Math.max(0.1, +x.timbre.vol || 0.85)) }
+        : null,
     })).filter(m => m.name);
     if (!members.length) return { error: 'JSON 里没有可用的成员' };
     let sections = null;
@@ -224,8 +227,7 @@ const Roster = (() => {
       '张三,组长·统筹,把复杂的事情变得简单一点,口头禅：先定deadline再谈梦想,1,',
       '李四,视觉设计,美是秩序的另一种名字,看晚霞会自动取色,2,C4',
       '王五,前端开发,保持好奇,能把bug调成彩蛋的人,3,',
-      '（从这里继续往下加人）,,,,,',
-    ].join('\r\n');
+    ].join('\r\n') + '\r\n（以上三行是示例，照着格式继续往下加人即可）';
   }
   function exportCSV(members) {
     const lines = members.map(m =>

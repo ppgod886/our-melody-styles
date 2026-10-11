@@ -31,5 +31,6 @@
     }
     requestAnimationFrame(frame);
   }
+  if (window.REDUCE_MOTION) { frame(performance.now()); return; }
   requestAnimationFrame(frame);
 })();

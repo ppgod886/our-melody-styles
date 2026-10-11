@@ -76,5 +76,6 @@
     confetti = confetti.filter(p => p.life > 0 && p.y < H + 40);
     requestAnimationFrame(frame);
   }
+  if (window.REDUCE_MOTION) { frame(performance.now()); return; }
   requestAnimationFrame(frame);
 })();
